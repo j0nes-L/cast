@@ -3,6 +3,12 @@ import { ArrowRight } from '@lucide/astro';
 import { en_, label } from '../lib/i18n';
 ---
 
+<!-- Shown while the page resumes the sign-in and loads; lib/session.ts hides it -->
+<div id="page-loading" class="page-loading" role="status">
+  <span class="spinner" aria-hidden="true"></span>
+  <span class="visually-hidden" data-t="common.loading">{en_('common.loading')}</span>
+</div>
+
 <form id="login" class="sign-in card" hidden>
   <img class="sign-in-logo" src="/nwdl-logo.png" alt="NWDL" width="72" height="72" />
   <p class="eyebrow">NewWorkDesignLab</p>

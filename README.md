@@ -16,7 +16,7 @@ The headset app and the browser both connect to LiveKit (`wss://live.nwdl.org`).
 |---|---|
 | `/` | Live view, one tile per casting headset. Only the focused tile (or the only one) plays sound. Buttons per tile: focus, mute, fullscreen, end cast. |
 | `/headsets` | Registered headsets and whether they are casting. "Remove" takes a headset off the list and ends its cast. Its credentials stay valid: it shows up again when it casts or is set up again. |
-| `/codes` | Large QR codes that start and stop casting when held in front of a headset in standby (no sign-in) |
+| `/codes` | The QR codes that start and stop casting when held in front of a headset in standby, one at a time and as large as the screen allows: swipe, or the arrows and arrow keys (no sign-in) |
 | `/privacy` | Privacy policy in English and German (no sign-in; also linked from the Meta Horizon Store) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |
 

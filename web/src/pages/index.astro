@@ -12,7 +12,7 @@ import { en_, label } from '../lib/i18n';
     <main id="live" hidden>
       <Header title="title.live" />
       <section id="empty" class="card empty">
-        <Cast size={40} strokeWidth={1.5} />
+        <Cast size={40} stroke-width={1.5} />
         <p class="empty-title" data-t="live.empty">{en_('live.empty')}</p>
         <p class="muted" data-t="live.emptyHint">{en_('live.emptyHint')}</p>
         <a class="cta" href="/codes" data-t="live.showCodes">{en_('live.showCodes')}</a>
@@ -23,7 +23,10 @@ import { en_, label } from '../lib/i18n';
     <!-- Toggle buttons hold both icons; the CSS shows the one for the current state (aria-pressed, fullscreen) -->
     <template id="tile-template">
       <article class="tile">
-        <video autoplay playsinline muted></video>
+        <div class="screen">
+          <video autoplay playsinline muted></video>
+          <span class="spinner on-dark" aria-hidden="true"></span>
+        </div>
         <footer>
           <span class="name"></span>
           <span class="quality"></span>
@@ -46,7 +49,7 @@ import { en_, label } from '../lib/i18n';
 
     <script>
       import { DisconnectReason, Room, RoomEvent, Track, type RemoteParticipant } from 'livekit-client';
-      import { setLabel, t, type Key } from '../lib/i18n';
+      import { busy, setLabel, t, type Key } from '../lib/i18n';
       import { setupSignIn, viewerFetch, type Session } from '../lib/session';
 
       const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -144,6 +147,9 @@ import { en_, label } from '../lib/i18n';
           render();
         };
         tile.fullscreen.onclick = () => (document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen());
+        // Loading circle until the picture runs, and again while it stalls
+        tile.video.addEventListener('playing', () => el.classList.add('playing'));
+        tile.video.addEventListener('waiting', () => el.classList.remove('playing'));
         tiles.set(identity, tile);
         tilesEl.append(el);
         for (const pub of participant.videoTrackPublications.values()) pub.setSubscribed(true);
@@ -211,9 +217,8 @@ import { en_, label } from '../lib/i18n';
       // The headset leaves the room; its tile disappears with the ParticipantDisconnected event.
       async function endCast(deviceId: string, name: string, button: HTMLButtonElement) {
         if (!session || !confirm(t('live.endConfirm', { name }))) return;
-        button.disabled = true;
-        const res = await viewerFetch(session, '/api/cast/stop', { deviceId }).catch(() => null);
-        button.disabled = false;
+        const current = session;
+        const res = await busy(button, () => viewerFetch(current, '/api/cast/stop', { deviceId }).catch(() => null));
         if (res?.ok) return;
         statusText.textContent = res?.status === 401 ? t('error.expired') : t('live.endFailed', { name });
       }

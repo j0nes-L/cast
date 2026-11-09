@@ -513,44 +513,147 @@ html:not([lang='de']) .flag-en {
   font-weight: 600;
 }
 
-/* Start and stop codes (/codes): as large as the screen allows, side by side or stacked */
-.codes-page {
-  text-align: center;
-}
-.codes-page .lead {
-  margin: 0 auto 1.5rem;
-}
-.big-codes {
+/* Start and stop codes (/codes): one at a time, as large as the screen allows; native swipe with scroll snap */
+.slides {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
 }
-.big-codes figure {
+.slides::-webkit-scrollbar {
+  display: none;
+}
+.slide {
+  flex: 0 0 100%;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem 0.5rem 1.5rem; /* room for the card shadow */
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.slide figure {
   margin: 0;
-  padding: 1.25rem;
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  max-width: 100%;
 }
-.big-codes figcaption {
+.slide figcaption {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
   font-weight: 700;
 }
-.big-codes figcaption svg {
+.slide figcaption svg {
   color: var(--blue);
 }
+/* The SVG has no size of its own: as wide as the window allows (minus frame, side bar and card), as high as the
+   page head, caption and controls leave room for */
 .qr {
-  width: min(40vw, 70vh);
-  min-width: min(260px, 80vw);
+  --qr-gutter: 11rem;
+  width: max(200px, min(calc(100vw - var(--qr-gutter)), calc(100vh - 19rem)));
+  aspect-ratio: 1;
   line-height: 0;
-  margin-bottom: 0.75rem;
+  margin: 0 auto 0.5rem;
 }
 .qr svg {
   width: 100%;
   height: auto;
+}
+.slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.dots {
+  display: flex;
+  gap: 0.5rem;
+}
+.dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width 0.2s, background 0.2s;
+}
+.dot[aria-current='true'] {
+  width: 1.6rem;
+  background: var(--blue);
+}
+
+/* Loading circles: page (sign-in pages), video tiles and busy buttons */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid #3a6fd833;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.spinner.on-dark {
+  border-color: #ffffff40;
+  border-top-color: #fff;
+}
+.page-loading {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+}
+.screen {
+  position: relative;
+}
+.screen .spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+.tile.playing .screen .spinner {
+  display: none;
+}
+[aria-busy='true'] {
+  position: relative;
+}
+.icon-button[aria-busy='true'] > svg,
+.rail button[aria-busy='true'] > svg {
+  visibility: hidden;
+}
+.icon-button[aria-busy='true']::after,
+.rail button[aria-busy='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  [aria-busy='true']::after {
+    animation-duration: 1.6s; /* still turning: a still circle would not say "loading" */
+  }
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* Privacy */
@@ -570,6 +673,36 @@ html:not([lang='de']) .flag-en {
 html[lang='de'] .legal [data-lang='en'],
 html:not([lang='de']) .legal [data-lang='de'] {
   display: none;
+}
+
+/* Short screens, e.g. phones held sideways: compact head, more room for the video and the code */
+@media (max-height: 520px) {
+  .page-head {
+    padding: 0.5rem 0;
+    gap: 0.75rem;
+  }
+  .page-head .eyebrow {
+    display: none;
+  }
+  .page-head h1 {
+    font-size: 1.6rem;
+  }
+  .brand img {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  .tile.focused video {
+    max-height: calc(100vh - 7.5rem);
+  }
+  .qr {
+    width: max(150px, min(calc(100vw - var(--qr-gutter)), calc(100vh - 11.5rem)));
+  }
+  .slide {
+    padding-bottom: 0.75rem;
+  }
+  .site-footer {
+    padding: 1rem 0;
+  }
 }
 
 /* Phones: side bar at the bottom */
@@ -610,6 +743,6 @@ html:not([lang='de']) .legal [data-lang='de'] {
     padding: 1.5rem;
   }
   .qr {
-    width: min(80vw, 60vh);
+    --qr-gutter: 5rem;
   }
 }

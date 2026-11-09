@@ -1,4 +1,4 @@
-import { t } from './i18n';
+import { busy, t } from './i18n';
 
 // The viewer's sign-in in the browser, shared by the cast page and /headsets.
 // The token lives in sessionStorage (this tab); "stay signed in" is an httpOnly cookie set by the server.
@@ -73,36 +73,38 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
   const staySignedIn = document.getElementById('stay-signed-in') as HTMLInputElement;
   const error = document.getElementById('login-error')!;
   const button = form.querySelector('button')!;
-  const signOutButton = document.getElementById('sign-out')!;
+  const signOutButton = document.getElementById('sign-out') as HTMLButtonElement;
+  const loading = document.getElementById('page-loading')!;
   const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
   const showSignIn = (text = '') => {
+    loading.hidden = true;
     form.hidden = false;
     signOutButton.hidden = true;
     error.textContent = text;
   };
   const start = async (session: Session) => {
     await onSession(session);
+    loading.hidden = true;
     form.hidden = true;
     signOutButton.hidden = false;
   };
 
   form.onsubmit = async (event) => {
     event.preventDefault();
-    button.disabled = true;
     error.textContent = '';
-    try {
-      await start(await signIn(password.value, staySignedIn.checked));
-      password.value = '';
-    } catch (err) {
-      error.textContent = message(err);
-    } finally {
-      button.disabled = false;
-    }
+    await busy(button, async () => {
+      try {
+        await start(await signIn(password.value, staySignedIn.checked));
+        password.value = '';
+      } catch (err) {
+        error.textContent = message(err);
+      }
+    });
   };
 
   signOutButton.onclick = async () => {
-    await signOut();
+    await busy(signOutButton, signOut);
     onSignOut();
     showSignIn();
   };

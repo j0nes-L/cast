@@ -29,7 +29,7 @@ import { en_, label } from "../lib/i18n";
   </template>
 
   <script>
-    import { t } from "../lib/i18n";
+    import { busy, t } from "../lib/i18n";
     import { setupSignIn, viewerFetch, type Session } from "../lib/session";
 
     type Device = {
@@ -79,12 +79,11 @@ import { en_, label } from "../lib/i18n";
     // Only the list forgets it: the headset keeps its credentials and shows up again when it casts.
     async function removeDevice(device: Device, button: HTMLButtonElement) {
       if (!session || !confirm(t("headsets.removeConfirm", { name: device.name }))) return;
-      button.disabled = true;
-      const res = await viewerFetch(session, "/api/devices/remove", {
-        deviceId: device.deviceId,
-      }).catch(() => null);
+      const current = session;
+      const res = await busy(button, () =>
+        viewerFetch(current, "/api/devices/remove", { deviceId: device.deviceId }).catch(() => null),
+      );
       if (!res?.ok && res?.status !== 404) {
-        button.disabled = false;
         listMessage.textContent =
           res?.status === 401 ? t("error.expired") : t("headsets.removeFailed", { name: device.name });
         return;

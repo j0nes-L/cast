@@ -1,9 +1,9 @@
 ---
-import { Play, Square } from '@lucide/astro';
+import { ChevronLeft, ChevronRight, Play, Square } from '@lucide/astro';
 import { renderSVG } from 'uqr';
 import Header from '../components/Header.astro';
 import Layout from '../layouts/Layout.astro';
-import { en_ } from '../lib/i18n';
+import { en_, label } from '../lib/i18n';
 
 // Held in front of a headset in standby, they start or stop its cast. Not secret, so no sign-in.
 const codes = [
@@ -15,19 +15,50 @@ const codes = [
 <Layout title="title.codes" current="codes">
   <Header title="title.codes" />
   <main class="codes-page">
-    <p class="lead" data-t="codes.lead">{en_('codes.lead')}</p>
-    <div class="big-codes">
+    <!-- One code at a time: swipe (touch, touchpad) or the arrows, dots and arrow keys -->
+    <div id="slides" class="slides">
       {
         codes.map(({ label, svg, Icon }) => (
-          <figure class="card">
-            <div class="qr" set:html={svg} />
-            <figcaption>
-              <Icon size={22} strokeWidth={2} />
-              <span data-t={label}>{en_(label)}</span>
-            </figcaption>
-          </figure>
+          <div class="slide">
+            <figure class="card">
+              <div class="qr" set:html={svg} />
+              <figcaption>
+                <Icon size={22} stroke-width={2} />
+                <span data-t={label}>{en_(label)}</span>
+              </figcaption>
+            </figure>
+          </div>
         ))
       }
     </div>
+    <div class="slide-controls">
+      <button id="previous" type="button" class="icon-button" {...label('codes.previous')}><ChevronLeft /></button>
+      <span class="dots">
+        {codes.map(({ label: name }, i) => <button type="button" class="dot" data-index={i} aria-current={i === 0 ? 'true' : 'false'} {...label(name)} />)}
+      </span>
+      <button id="next" type="button" class="icon-button" {...label('codes.next')}><ChevronRight /></button>
+    </div>
   </main>
+
+  <script>
+    const slides = document.getElementById('slides')!;
+    const dots = [...document.querySelectorAll<HTMLButtonElement>('.dot')];
+    const current = () => Math.round(slides.scrollLeft / slides.clientWidth);
+    // Wraps around, so both arrows always lead to the other code
+    const show = (index: number) => {
+      const count = dots.length;
+      slides.scrollTo({ left: (((index % count) + count) % count) * slides.clientWidth, behavior: 'smooth' });
+    };
+
+    document.getElementById('previous')!.onclick = () => show(current() - 1);
+    document.getElementById('next')!.onclick = () => show(current() + 1);
+    dots.forEach((dot, i) => (dot.onclick = () => show(i)));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(current() - 1);
+      if (event.key === 'ArrowRight') show(current() + 1);
+    });
+    slides.addEventListener('scroll', () => dots.forEach((dot, i) => dot.setAttribute('aria-current', String(i === current()))), {
+      passive: true,
+    });
+  </script>
 </Layout>

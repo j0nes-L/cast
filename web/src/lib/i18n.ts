@@ -57,9 +57,12 @@ const en = {
   'headsets.removeConfirm': 'Remove {name} from the list? A running cast ends.',
   'headsets.removeFailed': 'Could not remove {name}.',
 
-  'codes.lead': 'Hold a code in front of a headset in standby.',
   'codes.start': 'Start casting',
   'codes.stop': 'Stop casting',
+  'codes.previous': 'Previous code',
+  'codes.next': 'Next code',
+
+  'common.loading': 'Loading…',
 };
 
 export type Key = keyof typeof en;
@@ -119,9 +122,12 @@ const de: Record<Key, string> = {
   'headsets.removeConfirm': '{name} aus der Liste entfernen? Ein laufender Cast endet.',
   'headsets.removeFailed': '{name} konnte nicht entfernt werden.',
 
-  'codes.lead': 'Halte einen Code vor ein Headset im Standby.',
   'codes.start': 'Casting starten',
   'codes.stop': 'Casting stoppen',
+  'codes.previous': 'Vorheriger Code',
+  'codes.next': 'Nächster Code',
+
+  'common.loading': 'Lädt…',
 };
 
 export const strings: Record<Lang, Record<Key, string>> = { en, de };
@@ -136,6 +142,18 @@ export const label = (key: Key) => ({ 'data-t-label': key, 'aria-label': en[key]
 export function t(key: Key, vars: Record<string, string> = {}): string {
   const lang: Lang = document.documentElement.lang === 'de' ? 'de' : 'en';
   return strings[lang][key].replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+}
+
+/** Shows a loading circle on a button (CSS: [aria-busy]) while [work] runs. */
+export async function busy<T>(button: HTMLButtonElement, work: () => Promise<T>): Promise<T> {
+  button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+  try {
+    return await work();
+  } finally {
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+  }
 }
 
 /** Sets the accessible name and tooltip of an icon button. */
