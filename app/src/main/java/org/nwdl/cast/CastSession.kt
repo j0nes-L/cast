@@ -19,12 +19,10 @@ import io.livekit.android.room.track.Track
 import io.livekit.android.room.track.VideoCaptureParameter
 import io.livekit.android.room.track.VideoCodec
 import io.livekit.android.room.track.VideoEncoding
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -46,8 +44,6 @@ object CastSession {
     private const val START_CODE = "cast:start"
     private const val STOP_CODE = "cast:stop"
     private const val PREFS = "session"
-    private const val REGISTRATION_CHECK_MS = 60_000L
-    private const val REMOVED = "This headset was removed on the website."
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _status = MutableStateFlow(Status(State.Off))
@@ -60,7 +56,6 @@ object CastSession {
     private var relay: FrameRelay? = null // feeds the published track while casting
     private var appSound: ScreenAudioCapturer? = null
     private var roomEvents: Job? = null
-    private var registrationCheck: Job? = null
     private var lastQrAction = 0L
     private val qrReader = FrameQrReader(::onQrCode)
 
@@ -105,12 +100,6 @@ object CastSession {
             track.addRenderer(qrReader)
             setAutostart(true)
             set(State.Standby)
-            registrationCheck = scope.launch {
-                while (true) {
-                    checkRegistration()
-                    delay(REGISTRATION_CHECK_MS)
-                }
-            }
         } catch (e: Exception) {
             shutDown()
             set(State.Off, "Could not start the screen capture: ${e.message ?: e.javaClass.simpleName}")
@@ -145,8 +134,8 @@ object CastSession {
                 set(State.Casting)
             } catch (e: Exception) {
                 leaveRoom()
-                if (e is NotSetUpException) onRemoved()
-                else set(State.Standby, "Casting failed: ${e.message ?: e.javaClass.simpleName}")
+                if (e is NotSetUpException) DeviceConfig.clear(app)
+                set(State.Standby, "Casting failed: ${e.message ?: e.javaClass.simpleName}")
             }
         }
     }
@@ -169,33 +158,7 @@ object CastSession {
     private fun onDisconnected(event: RoomEvent.Disconnected) {
         if (_status.value.state != State.Casting) return
         leaveRoom()
-        if (event.reason == DisconnectReason.PARTICIPANT_REMOVED) {
-            set(State.Standby, "Cast ended from the website.")
-            scope.launch { checkRegistration() } // "End cast", or the headset was removed on the website
-        } else {
-            set(State.Standby, "Connection lost.")
-        }
-    }
-
-    private suspend fun checkRegistration() {
-        val config = DeviceConfig.load(app) ?: return onRemoved()
-        val registered = try {
-            withContext(Dispatchers.IO) { config.isRegistered() }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            return // website not reachable, e.g. offline: try again next time
-        }
-        if (!registered) onRemoved()
-    }
-
-    // Stops everything and forgets the credentials; the app then shows the setup notice
-    private fun onRemoved() {
-        if (_status.value.state == State.Off) return
-        shutDown()
-        setAutostart(false)
-        DeviceConfig.clear(app)
-        set(State.Off, REMOVED)
+        set(State.Standby, if (event.reason == DisconnectReason.PARTICIPANT_REMOVED) "Cast ended from the website." else "Connection lost.")
     }
 
     // The system ended the capture, e.g. for Meta's own casting
@@ -235,8 +198,6 @@ object CastSession {
     }
 
     private fun shutDown() {
-        registrationCheck?.cancel()
-        registrationCheck = null
         leaveRoom()
         screen?.let {
             it.removeRenderer(qrReader)

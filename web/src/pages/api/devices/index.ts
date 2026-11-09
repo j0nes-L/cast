@@ -13,6 +13,7 @@ export const GET: APIRoute = async ({ request }) => {
   const [devices, casting] = await Promise.all([store.listDevices(), castingDevices(keys, LIVEKIT_PUBLIC_URL)]);
   return Response.json(
     devices
+      .filter((d) => !d.removed)
       .map(({ deviceId, name, createdAt }) => ({ deviceId, name, createdAt, casting: casting.has(deviceId) }))
       .sort((a, b) => a.name.localeCompare(b.name)),
   );

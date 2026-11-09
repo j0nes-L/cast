@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
         primary.visibility = if (config != null) View.VISIBLE else View.GONE
         quit.visibility = if (config != null) View.VISIBLE else View.GONE
         if (config == null) {
-            status.text = listOfNotNull(CastSession.status.value.message, NOT_SET_UP).joinToString("\n\n") // e.g. "removed"
+            status.text = NOT_SET_UP
             return
         }
         val (state, message) = CastSession.status.value

@@ -21,7 +21,7 @@ import '../styles/cast.css';
           <h2 id="list-title">Headsets</h2>
           <ul id="device-list"></ul>
           <p id="list-message" class="muted" role="status"></p>
-          <p class="muted">Headsets are set up once with the setup script (app/setup.ps1). A removed headset stops casting and forgets its credentials.</p>
+          <p class="muted">Headsets are set up once with the setup script (app/setup.ps1). A removed headset shows up again when it casts or is set up again.</p>
         </section>
       </main>
     </div>
@@ -66,9 +66,9 @@ import '../styles/cast.css';
         return item;
       }
 
-      // The headset notices within a minute (right away while casting) and shows the setup notice.
+      // Only the list forgets it: the headset keeps its credentials and shows up again when it casts.
       async function removeDevice(device: Device, button: HTMLButtonElement) {
-        if (!session || !confirm(`Remove ${device.name}? It stops casting and has to be set up again with the setup script.`)) return;
+        if (!session || !confirm(`Remove ${device.name} from the list? A running cast ends.`)) return;
         button.disabled = true;
         const res = await viewerFetch(session, '/api/devices/remove', { deviceId: device.deviceId }).catch(() => null);
         if (!res?.ok && res?.status !== 404) {

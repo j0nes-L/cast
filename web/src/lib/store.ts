@@ -1,15 +1,21 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
-export type StoredDevice = { deviceId: string; name: string; secretSha256: string; serialSha256: string; createdAt: string };
+export type StoredDevice = {
+  deviceId: string;
+  name: string;
+  secretSha256: string;
+  serialSha256: string;
+  createdAt: string;
+  /** Hidden on /headsets; the credentials stay valid, and the headset shows up again when it casts. */
+  removed?: boolean;
+};
 
 /** Registered headsets. */
 export interface Store {
   listDevices(): Promise<StoredDevice[]>;
   getDevice(deviceId: string): Promise<StoredDevice | null>;
   putDevice(device: StoredDevice): Promise<void>;
-  /** False if there was no such headset. */
-  deleteDevice(deviceId: string): Promise<boolean>;
 }
 
 /** Upstash Redis over its REST API (Vercel Marketplace), no client library needed. */
@@ -36,9 +42,6 @@ export function redisStore(url: string, token: string): Store {
     async putDevice(device) {
       await call('HSET', 'devices', device.deviceId, JSON.stringify(device));
     },
-    async deleteDevice(deviceId) {
-      return (await call('HDEL', 'devices', deviceId)) === 1;
-    },
   };
 }
 
@@ -52,10 +55,6 @@ export function fileStore(path: string): Store {
       return { devices: {} };
     }
   };
-  const save = async (data: Data) => {
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, JSON.stringify(data, null, 2));
-  };
   return {
     async listDevices() {
       return Object.values((await load()).devices);
@@ -66,14 +65,8 @@ export function fileStore(path: string): Store {
     async putDevice(device) {
       const data = await load();
       data.devices[device.deviceId] = device;
-      await save(data);
-    },
-    async deleteDevice(deviceId) {
-      const data = await load();
-      if (!data.devices[deviceId]) return false;
-      delete data.devices[deviceId];
-      await save(data);
-      return true;
+      await mkdir(dirname(path), { recursive: true });
+      await writeFile(path, JSON.stringify(data, null, 2));
     },
   };
 }
