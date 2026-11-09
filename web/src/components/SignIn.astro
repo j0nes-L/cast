@@ -1,10 +1,20 @@
-<form id="login" hidden>
-  <h1>cast</h1>
+---
+import { ArrowRight } from '@lucide/astro';
+import { en_, label } from '../lib/i18n';
+---
+
+<form id="login" class="sign-in card" hidden>
+  <img class="sign-in-logo" src="/nwdl-logo.png" alt="NWDL" width="72" height="72" />
+  <p class="eyebrow">NewWorkDesignLab</p>
+  <h1>Cast</h1>
+  <p class="lead" data-t="signIn.lead">{en_('signIn.lead')}</p>
   <!-- lets password managers save and fill the password -->
   <input type="text" name="username" autocomplete="username" value="cast" hidden />
-  <label for="password">Password</label>
-  <input id="password" name="password" type="password" autocomplete="current-password" required autofocus />
-  <label class="checkbox"><input id="stay-signed-in" type="checkbox" /> Stay signed in</label>
-  <button type="submit">Sign in</button>
+  <label for="password" data-t="signIn.password">{en_('signIn.password')}</label>
+  <div class="password-row">
+    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus />
+    <button type="submit" class="icon-button primary" {...label('signIn.submit')}><ArrowRight /></button>
+  </div>
+  <label class="checkbox"><input id="stay-signed-in" type="checkbox" /> <span data-t="signIn.stay">{en_('signIn.stay')}</span></label>
   <p id="login-error" class="error" role="alert"></p>
 </form>

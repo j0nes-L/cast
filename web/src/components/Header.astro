@@ -1,20 +1,19 @@
 ---
+// Page title with the NWDL logo; #status shows connection messages.
+import { en_, type Key } from '../lib/i18n';
+
 interface Props {
-  current: 'live' | 'headsets';
+  title: Key;
 }
-const { current } = Astro.props;
+const { title } = Astro.props;
 ---
 
-<header>
-  <h1>cast</h1>
-  <nav>
-    <a href="/" aria-current={current === 'live' ? 'page' : undefined}>Live</a>
-    <a href="/headsets" aria-current={current === 'headsets' ? 'page' : undefined}>Headsets</a>
-    <a href="/codes">Codes</a>
-  </nav>
+<header class="page-head">
+  <a class="brand" href="/"><img src="/nwdl-logo.png" alt="NWDL" width="56" height="56" /></a>
+  <div class="page-title">
+    <p class="eyebrow">NWDL Cast</p>
+    <h1 data-t={title}>{en_(title)}</h1>
+  </div>
   <span id="status" role="status"></span>
-  <span class="header-actions">
-    <slot />
-    <button id="sign-out" type="button">Sign out</button>
-  </span>
+  <slot />
 </header>

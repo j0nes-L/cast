@@ -1,0 +1,70 @@
+---
+// Shared page frame in the NewWorkDesignLab style: fonts, side bar, footer and the language (see lib/i18n.ts).
+import '@fontsource-variable/inter';
+import '@fontsource/playfair-display/700.css';
+import '../styles/cast.css';
+import Sidebar from '../components/Sidebar.astro';
+import { en_, strings, type Key } from '../lib/i18n';
+
+interface Props {
+  title: Key;
+  current?: 'live' | 'headsets' | 'codes' | 'privacy';
+}
+const { title, current } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title data-t={title}>{en_(title)}</title>
+    <link rel="icon" href="/favicon.png" />
+    <script is:inline>
+      // Before the page shows, so that the right language and the matching privacy text appear at once
+      let saved = null;
+      try {
+        saved = localStorage.getItem('cast.lang');
+      } catch {}
+      document.documentElement.lang =
+        saved === 'de' || saved === 'en' ? saved : navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en';
+    </script>
+  </head>
+  <body>
+    <Sidebar current={current} />
+    <div class="frame">
+      <slot />
+      <footer class="site-footer">
+        <a href="/privacy" data-t="footer.privacy">{en_('footer.privacy')}</a>
+        <a href="https://newworkdesignlab.org/legal-note/" data-t="footer.imprint">{en_('footer.imprint')}</a>
+        <a href="https://newworkdesignlab.org/">NewWorkDesignLab</a>
+      </footer>
+    </div>
+
+    <script is:inline define:vars={{ strings }}>
+      // Runs before the first paint: swaps in the texts of the chosen language, also inside <template>s.
+      const lang = document.documentElement.lang === 'de' ? 'de' : 'en';
+      const dict = strings[lang];
+      const apply = (root) => {
+        root.querySelectorAll('[data-t]').forEach((el) => {
+          if (dict[el.dataset.t]) el.textContent = dict[el.dataset.t];
+        });
+        root.querySelectorAll('[data-t-label]').forEach((el) => {
+          const text = dict[el.dataset.tLabel];
+          if (text) {
+            el.setAttribute('aria-label', text);
+            el.title = text;
+          }
+        });
+        root.querySelectorAll('template').forEach((template) => apply(template.content));
+      };
+      apply(document);
+      document.getElementById('language').onclick = () => {
+        try {
+          localStorage.setItem('cast.lang', lang === 'de' ? 'en' : 'de');
+        } catch {}
+        location.reload(); // simplest way to switch every text, including the ones the page scripts set
+      };
+    </script>
+  </body>
+</html>

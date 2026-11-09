@@ -1,0 +1,126 @@
+---
+// Public, also for the Meta Horizon Store listing. Both languages are in the page; the CSS shows the chosen one.
+// Keep it in line with what the app, the website and the servers really do (see the READMEs).
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+
+const updated = '09.11.2026';
+const contact = 'contact@nwdl.org';
+---
+
+<Layout title="title.privacy" current="privacy">
+  <Header title="title.privacy" />
+  <main class="legal">
+    <article lang="en" data-lang="en">
+      <p class="lead">This page explains which data NWDL Cast processes: the NWDL Cast app on Meta Quest headsets and the website cast.nwdl.org. Last updated: {updated}.</p>
+
+      <h2>Who is responsible</h2>
+      <address>
+        Fachhochschule Dresden – Private Fachhochschule GmbH<br />
+        NewWorkDesignLab (NWDL)<br />
+        Güntzstraße 1, 01069 Dresden, Germany<br />
+        E-mail: <a href={`mailto:${contact}`}>{contact}</a><br />
+        <a href="https://newworkdesignlab.org/">newworkdesignlab.org</a> · <a href="https://newworkdesignlab.org/legal-note/">Imprint</a>
+      </address>
+
+      <h2>What NWDL Cast does</h2>
+      <p>NWDL Cast shows live in a browser what a person wearing a Meta Quest headset sees and hears, so that the NWDL team can follow and support them. Only people who know the shared password can watch.</p>
+
+      <h2>The app on the headset</h2>
+      <ul>
+        <li><strong>Standby:</strong> the app captures the headset's screen to recognise the start and stop QR codes. The images are only analysed on the headset; they are neither stored nor sent anywhere.</li>
+        <li><strong>Casting</strong> starts only with the start code or the "Start casting" button. Then the screen image, the microphone and the sound of the apps are streamed live to our streaming server and from there to signed-in viewers. Nothing is recorded or stored. A notification on the headset shows that it is casting. The cast ends with the stop code, the "Stop casting" button or from the website.</li>
+        <li>Everything visible in the headset during a cast, and everything said near it, can be seen and heard by the viewers.</li>
+        <li><strong>Setup:</strong> each headset is set up once by the NWDL team. The website then stores its model, the name given during setup, a hash of its serial number (to recognise it when it is set up again), its access credentials as a hash and the time of the setup. The headset keeps its credentials in the app's private storage. We keep this data while the headset is used for NWDL Cast and delete it on request.</li>
+        <li>The app is installed from the Meta Horizon Store; Meta's privacy policy applies to the store.</li>
+      </ul>
+
+      <h2>The website</h2>
+      <ul>
+        <li>Viewers sign in with a shared password. There are no personal accounts, names or e-mail addresses.</li>
+        <li>Each browser tab gets an access token with a random ID (for example viewer-1a2b3c4d), valid for one hour. It is kept in the tab's session storage until the tab is closed.</li>
+        <li>"Stay signed in" sets the cookie <code>cast_remember</code> for 30 days, only if you choose it. Signing out deletes it.</li>
+        <li>If you switch the language, your choice is kept in the browser's local storage (<code>cast.lang</code>).</li>
+        <li>There is no analytics, tracking or advertising, and no content from third parties. Fonts and icons are served by this website itself.</li>
+      </ul>
+
+      <h2>Servers and service providers</h2>
+      <ul>
+        <li><strong>Website and sign-in:</strong> Vercel Inc. (USA); the server functions run in Frankfurt, Germany. Vercel processes connection data such as IP addresses to deliver the website.</li>
+        <li><strong>List of set-up headsets:</strong> a database at Upstash, Inc. (USA), connected through Vercel.</li>
+        <li><strong>Streaming server:</strong> our server at IONOS SE (Germany). The connection to live.nwdl.org runs through Cloudflare, Inc. (USA); video and audio go directly to our server and are encrypted in transit.</li>
+        <li>Vercel, Upstash and Cloudflare process data on our behalf. For transfers to the USA they rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses.</li>
+      </ul>
+
+      <h2>Logs</h2>
+      <ul>
+        <li>The streaming server keeps a technical log for troubleshooting: times, the random IDs of viewers and headsets, and the IP addresses of the connections. It has a fixed maximum size; the oldest entries are overwritten automatically.</li>
+        <li>The web server in front of the streaming server logs the time, the requested address (which contains the one-hour access token) and the address of Cloudflare. These logs are deleted after five weeks at the latest.</li>
+        <li>Vercel keeps request logs according to its own retention periods.</li>
+      </ul>
+
+      <h2>Legal basis</h2>
+      <p>We process the data based on our legitimate interest in supporting people who use VR headsets and in running the service securely (Art. 6(1)(f) GDPR). Storing the access token, the "Stay signed in" cookie and the language in your browser is strictly necessary for the service you asked for (§ 25(2) no. 2 TDDDG).</p>
+
+      <h2>Your rights</h2>
+      <p>You have the right to access, rectification, erasure, restriction of processing and data portability, and the right to object to the processing (Art. 15–21 GDPR). Write to <a href={`mailto:${contact}`}>{contact}</a>.</p>
+      <p>You can also complain to a supervisory authority, for example: Sächsische Datenschutz- und Transparenzbeauftragte, Maternistraße 17, 01067 Dresden, <a href="mailto:post@sdtb.sachsen.de">post@sdtb.sachsen.de</a>.</p>
+    </article>
+
+    <article lang="de" data-lang="de">
+      <p class="lead">Diese Seite erklärt, welche Daten NWDL Cast verarbeitet: die App NWDL Cast auf Meta-Quest-Headsets und die Website cast.nwdl.org. Stand: {updated}.</p>
+
+      <h2>Verantwortlich</h2>
+      <address>
+        Fachhochschule Dresden – Private Fachhochschule GmbH<br />
+        NewWorkDesignLab (NWDL)<br />
+        Güntzstraße 1, 01069 Dresden<br />
+        E-Mail: <a href={`mailto:${contact}`}>{contact}</a><br />
+        <a href="https://newworkdesignlab.org/">newworkdesignlab.org</a> · <a href="https://newworkdesignlab.org/legal-note/">Impressum</a>
+      </address>
+
+      <h2>Was NWDL Cast macht</h2>
+      <p>NWDL Cast zeigt live im Browser, was eine Person mit einem Meta-Quest-Headset sieht und hört, damit das NWDL-Team sie begleiten und unterstützen kann. Zuschauen kann nur, wer das gemeinsame Passwort kennt.</p>
+
+      <h2>Die App auf dem Headset</h2>
+      <ul>
+        <li><strong>Standby:</strong> Die App nimmt den Bildschirm des Headsets auf, um die Start- und Stopp-QR-Codes zu erkennen. Die Bilder werden nur auf dem Headset ausgewertet, weder gespeichert noch irgendwohin gesendet.</li>
+        <li><strong>Casting</strong> startet nur mit dem Start-Code oder der Schaltfläche „Start casting“. Dann werden Bildschirmbild, Mikrofon und der Ton der Apps live an unseren Streaming-Server und von dort an angemeldete Zuschauer übertragen. Nichts wird aufgezeichnet oder gespeichert. Eine Benachrichtigung auf dem Headset zeigt, dass gecastet wird. Der Cast endet mit dem Stopp-Code, der Schaltfläche „Stop casting“ oder über die Website.</li>
+        <li>Alles, was während eines Casts im Headset zu sehen ist und in seiner Nähe gesagt wird, können die Zuschauer sehen und hören.</li>
+        <li><strong>Einrichtung:</strong> Jedes Headset wird einmal vom NWDL-Team eingerichtet. Die Website speichert dann sein Modell, den bei der Einrichtung vergebenen Namen, einen Hash seiner Seriennummer (um es bei einer erneuten Einrichtung wiederzuerkennen), seine Zugangsdaten als Hash und den Zeitpunkt der Einrichtung. Das Headset speichert seine Zugangsdaten im privaten Speicher der App. Wir bewahren diese Daten auf, solange das Headset für NWDL Cast genutzt wird, und löschen sie auf Anfrage.</li>
+        <li>Die App wird aus dem Meta Horizon Store installiert; für den Store gilt die Datenschutzerklärung von Meta.</li>
+      </ul>
+
+      <h2>Die Website</h2>
+      <ul>
+        <li>Zuschauer melden sich mit einem gemeinsamen Passwort an. Es gibt keine persönlichen Konten, Namen oder E-Mail-Adressen.</li>
+        <li>Jeder Browser-Tab erhält ein Zugangstoken mit einer zufälligen ID (zum Beispiel viewer-1a2b3c4d), das eine Stunde gültig ist. Es liegt im Sitzungsspeicher des Tabs, bis der Tab geschlossen wird.</li>
+        <li>„Angemeldet bleiben“ setzt das Cookie <code>cast_remember</code> für 30 Tage, nur wenn du es auswählst. Beim Abmelden wird es gelöscht.</li>
+        <li>Wenn du die Sprache wechselst, wird deine Wahl im lokalen Speicher des Browsers abgelegt (<code>cast.lang</code>).</li>
+        <li>Es gibt keine Analyse-, Tracking- oder Werbedienste und keine Inhalte von Dritten. Schriften und Icons liefert diese Website selbst aus.</li>
+      </ul>
+
+      <h2>Server und Dienstleister</h2>
+      <ul>
+        <li><strong>Website und Anmeldung:</strong> Vercel Inc. (USA); die Serverfunktionen laufen in Frankfurt am Main. Vercel verarbeitet Verbindungsdaten wie IP-Adressen, um die Website auszuliefern.</li>
+        <li><strong>Liste der eingerichteten Headsets:</strong> eine Datenbank bei Upstash, Inc. (USA), angebunden über Vercel.</li>
+        <li><strong>Streaming-Server:</strong> unser Server bei der IONOS SE (Deutschland). Die Verbindung zu live.nwdl.org läuft über Cloudflare, Inc. (USA); Bild und Ton gehen direkt an unseren Server und werden verschlüsselt übertragen.</li>
+        <li>Vercel, Upstash und Cloudflare verarbeiten die Daten in unserem Auftrag. Für Übermittlungen in die USA stützen sie sich auf das EU-US Data Privacy Framework oder die EU-Standardvertragsklauseln.</li>
+      </ul>
+
+      <h2>Protokolle</h2>
+      <ul>
+        <li>Der Streaming-Server führt zur Fehlersuche ein technisches Protokoll: Zeitpunkte, die zufälligen IDs von Zuschauern und Headsets und die IP-Adressen der Verbindungen. Es hat eine feste Höchstgröße; die ältesten Einträge werden automatisch überschrieben.</li>
+        <li>Der Webserver vor dem Streaming-Server protokolliert Zeitpunkt, aufgerufene Adresse (sie enthält das eine Stunde gültige Zugangstoken) und die Adresse von Cloudflare. Diese Protokolle werden spätestens nach fünf Wochen gelöscht.</li>
+        <li>Vercel bewahrt Anfrageprotokolle nach seinen eigenen Fristen auf.</li>
+      </ul>
+
+      <h2>Rechtsgrundlage</h2>
+      <p>Wir verarbeiten die Daten auf Grundlage unseres berechtigten Interesses, Menschen bei der Nutzung von VR-Headsets zu unterstützen und den Dienst sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO). Das Speichern des Zugangstokens, des Cookies „Angemeldet bleiben“ und der Sprache im Browser ist für den von dir gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>
+
+      <h2>Deine Rechte</h2>
+      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit sowie das Recht, der Verarbeitung zu widersprechen (Art. 15–21 DSGVO). Schreib dazu an <a href={`mailto:${contact}`}>{contact}</a>.</p>
+      <p>Außerdem kannst du dich bei einer Aufsichtsbehörde beschweren, zum Beispiel bei der Sächsischen Datenschutz- und Transparenzbeauftragten, Maternistraße 17, 01067 Dresden, <a href="mailto:post@sdtb.sachsen.de">post@sdtb.sachsen.de</a>.</p>
+    </article>
+  </main>
+</Layout>

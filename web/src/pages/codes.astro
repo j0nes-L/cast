@@ -1,34 +1,33 @@
 ---
+import { Play, Square } from '@lucide/astro';
 import { renderSVG } from 'uqr';
-import '../styles/cast.css';
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import { en_ } from '../lib/i18n';
 
 // Held in front of a headset in standby, they start or stop its cast. Not secret, so no sign-in.
 const codes = [
-  { label: 'Start casting', svg: renderSVG('cast:start', { border: 2 }) },
-  { label: 'Stop casting', svg: renderSVG('cast:stop', { border: 2 }) },
+  { label: 'codes.start' as const, svg: renderSVG('cast:start', { border: 2 }), Icon: Play },
+  { label: 'codes.stop' as const, svg: renderSVG('cast:stop', { border: 2 }), Icon: Square },
 ];
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
-    <title>cast · Codes</title>
-  </head>
-  <body>
-    <main class="codes-page">
-      <p class="muted">Hold a code in front of a headset in standby. <a href="/">Back to cast</a></p>
-      <div class="big-codes">
-        {
-          codes.map((code) => (
-            <figure>
-              <div class="qr" set:html={code.svg} />
-              <figcaption>{code.label}</figcaption>
-            </figure>
-          ))
-        }
-      </div>
-    </main>
-  </body>
-</html>
+<Layout title="title.codes" current="codes">
+  <Header title="title.codes" />
+  <main class="codes-page">
+    <p class="lead" data-t="codes.lead">{en_('codes.lead')}</p>
+    <div class="big-codes">
+      {
+        codes.map(({ label, svg, Icon }) => (
+          <figure class="card">
+            <div class="qr" set:html={svg} />
+            <figcaption>
+              <Icon size={22} strokeWidth={2} />
+              <span data-t={label}>{en_(label)}</span>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </main>
+</Layout>

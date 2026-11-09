@@ -17,7 +17,10 @@ The headset app and the browser both connect to LiveKit (`wss://live.nwdl.org`).
 | `/` | Live view, one tile per casting headset. Only the focused tile (or the only one) plays sound. Buttons per tile: focus, mute, fullscreen, end cast. |
 | `/headsets` | Registered headsets and whether they are casting. "Remove" takes a headset off the list and ends its cast. Its credentials stay valid: it shows up again when it casts or is set up again. |
 | `/codes` | Large QR codes that start and stop casting when held in front of a headset in standby (no sign-in) |
+| `/privacy` | Privacy policy in English and German (no sign-in; also linked from the Meta Horizon Store) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |
+
+The pages follow the style of newworkdesignlab.org (Inter and Playfair Display, served from the site itself, Lucide icons) and are in English and German: the flag in the side bar switches, otherwise the browser language decides. Texts live in `src/lib/i18n.ts`. If the app, the website or the servers start processing other data, update `/privacy` too.
 
 | API | |
 |---|---|

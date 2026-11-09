@@ -1,3 +1,5 @@
+import { t } from './i18n';
+
 // The viewer's sign-in in the browser, shared by the cast page and /headsets.
 // The token lives in sessionStorage (this tab); "stay signed in" is an httpOnly cookie set by the server.
 export type Session = { url: string; token: string };
@@ -33,15 +35,15 @@ async function requestToken(body: object): Promise<Response> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).catch(() => {
-    throw new Error('The server is not reachable. Check your connection.');
+    throw new Error(t('error.unreachable'));
   });
 }
 
 /** Exchanges the password for a viewer token. Throws a readable error. */
 export async function signIn(password: string, staySignedIn: boolean): Promise<Session> {
   const res = await requestToken({ password, remember: staySignedIn });
-  if (res.status === 401) throw new Error('Wrong password.');
-  if (!res.ok) throw new Error('Sign-in failed. Please try again.');
+  if (res.status === 401) throw new Error(t('error.wrongPassword'));
+  if (!res.ok) throw new Error(t('error.signInFailed'));
   return remember(await res.json());
 }
 
@@ -62,7 +64,7 @@ export async function signOut() {
 }
 
 /**
- * Wires the sign-in form (components/SignIn.astro) and the sign-out button (components/Header.astro).
+ * Wires the sign-in form (components/SignIn.astro) and the sign-out button (components/Sidebar.astro).
  * [onSession] gets a valid session and shows the page; it may throw to show an error on the form.
  */
 export function setupSignIn(onSession: (session: Session) => Promise<void>, onSignOut: () => void) {
@@ -71,15 +73,18 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
   const staySignedIn = document.getElementById('stay-signed-in') as HTMLInputElement;
   const error = document.getElementById('login-error')!;
   const button = form.querySelector('button')!;
+  const signOutButton = document.getElementById('sign-out')!;
   const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
   const showSignIn = (text = '') => {
     form.hidden = false;
+    signOutButton.hidden = true;
     error.textContent = text;
   };
   const start = async (session: Session) => {
     await onSession(session);
     form.hidden = true;
+    signOutButton.hidden = false;
   };
 
   form.onsubmit = async (event) => {
@@ -96,7 +101,7 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
     }
   };
 
-  document.getElementById('sign-out')!.onclick = async () => {
+  signOutButton.onclick = async () => {
     await signOut();
     onSignOut();
     showSignIn();

@@ -1,25 +1,26 @@
 ---
+import { Cast, CircleStop, Focus, LayoutGrid, Maximize, Minimize, Volume2, VolumeX } from '@lucide/astro';
 import Header from '../components/Header.astro';
 import SignIn from '../components/SignIn.astro';
-import '../styles/cast.css';
+import Layout from '../layouts/Layout.astro';
+import { en_, label } from '../lib/i18n';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
-    <title>cast</title>
-  </head>
-  <body>
+<Layout title="title.live" current="live">
     <SignIn />
 
     <main id="live" hidden>
-      <Header current="live" />
-      <p id="empty">No headset is streaming right now.</p>
+      <Header title="title.live" />
+      <section id="empty" class="card empty">
+        <Cast size={40} strokeWidth={1.5} />
+        <p class="empty-title" data-t="live.empty">{en_('live.empty')}</p>
+        <p class="muted" data-t="live.emptyHint">{en_('live.emptyHint')}</p>
+        <a class="cta" href="/codes" data-t="live.showCodes">{en_('live.showCodes')}</a>
+      </section>
       <div id="tiles"></div>
     </main>
 
+    <!-- Toggle buttons hold both icons; the CSS shows the one for the current state (aria-pressed, fullscreen) -->
     <template id="tile-template">
       <article class="tile">
         <video autoplay playsinline muted></video>
@@ -27,11 +28,17 @@ import '../styles/cast.css';
           <span class="name"></span>
           <span class="quality"></span>
           <span class="actions">
-            <button type="button" class="enable-audio" hidden>Enable audio</button>
-            <button type="button" class="mute" aria-pressed="false">Mute</button>
-            <button type="button" class="fullscreen">Fullscreen</button>
-            <button type="button" class="focus" aria-pressed="false">Focus</button>
-            <button type="button" class="end">End cast</button>
+            <button type="button" class="icon-button primary enable-audio" hidden {...label('live.enableAudio')}><Volume2 /></button>
+            <button type="button" class="icon-button mute" aria-pressed="false" {...label('live.mute')}>
+              <Volume2 class="when-off" /><VolumeX class="when-on" />
+            </button>
+            <button type="button" class="icon-button fullscreen" {...label('live.fullscreen')}>
+              <Maximize class="when-off" /><Minimize class="when-on" />
+            </button>
+            <button type="button" class="icon-button focus" aria-pressed="false" {...label('live.focus')}>
+              <Focus class="when-off" /><LayoutGrid class="when-on" />
+            </button>
+            <button type="button" class="icon-button danger end" {...label('live.end')}><CircleStop /></button>
           </span>
         </footer>
       </article>
@@ -39,6 +46,7 @@ import '../styles/cast.css';
 
     <script>
       import { DisconnectReason, Room, RoomEvent, Track, type RemoteParticipant } from 'livekit-client';
+      import { setLabel, t, type Key } from '../lib/i18n';
       import { setupSignIn, viewerFetch, type Session } from '../lib/session';
 
       const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -60,7 +68,12 @@ import '../styles/cast.css';
         end: HTMLButtonElement;
       };
 
-      const QUALITY: Record<string, string> = { excellent: 'Excellent', good: 'Good', poor: 'Poor', lost: 'Connection lost' };
+      const QUALITY: Record<string, Key> = {
+        excellent: 'quality.excellent',
+        good: 'quality.good',
+        poor: 'quality.poor',
+        lost: 'quality.lost',
+      };
       const tiles = new Map<string, Tile>();
       let manualFocus: string | null = null;
       let muted = false;
@@ -89,13 +102,13 @@ import '../styles/cast.css';
           tile.el.classList.toggle('focused', isFocus);
           tile.el.hidden = focus !== null && !isFocus;
           tile.focus.hidden = tiles.size === 1;
-          tile.focus.textContent = isFocus ? 'Show all' : 'Focus';
+          setLabel(tile.focus, isFocus ? 'live.showAll' : 'live.focus');
           tile.focus.setAttribute('aria-pressed', String(isFocus));
           tile.mute.hidden = !isFocus;
           // Browsers block sound until the page was clicked, e.g. after a reload with a remembered sign-in
           tile.enableAudio.hidden = !isFocus || muted || room.canPlaybackAudio;
           tile.fullscreen.hidden = !isFocus;
-          tile.mute.textContent = muted ? 'Unmute' : 'Mute';
+          setLabel(tile.mute, muted ? 'live.unmute' : 'live.mute');
           tile.mute.setAttribute('aria-pressed', String(muted));
           for (const pub of tile.participant.audioTrackPublications.values()) pub.setSubscribed(isFocus && !muted);
         }
@@ -145,7 +158,10 @@ import '../styles/cast.css';
 
       function showQuality(participant: RemoteParticipant) {
         const tile = tiles.get(participant.identity);
-        if (tile) tile.quality.textContent = QUALITY[participant.connectionQuality] ?? '';
+        if (!tile) return;
+        const key = QUALITY[participant.connectionQuality];
+        tile.quality.textContent = key ? t(key) : '';
+        tile.quality.dataset.level = participant.connectionQuality;
       }
 
       room
@@ -176,13 +192,13 @@ import '../styles/cast.css';
         })
         .on(RoomEvent.ConnectionQualityChanged, (_quality, p) => showQuality(p as RemoteParticipant))
         .on(RoomEvent.AudioPlaybackStatusChanged, render)
-        .on(RoomEvent.Reconnecting, () => (statusText.textContent = 'Reconnecting…'))
+        .on(RoomEvent.Reconnecting, () => (statusText.textContent = t('live.reconnecting')))
         .on(RoomEvent.Reconnected, () => (statusText.textContent = ''))
         .on(RoomEvent.Disconnected, (reason) => {
           // Our own disconnect: sign-out handles it, and when leaving the page the next page takes over
           if (reason === DisconnectReason.CLIENT_INITIATED) return;
           hideLive();
-          signInUi.showSignIn('The connection was closed. Please sign in again.');
+          signInUi.showSignIn(t('error.connectionClosed'));
         });
 
       function hideLive() {
@@ -194,19 +210,18 @@ import '../styles/cast.css';
 
       // The headset leaves the room; its tile disappears with the ParticipantDisconnected event.
       async function endCast(deviceId: string, name: string, button: HTMLButtonElement) {
-        if (!session || !confirm(`End the cast of ${name}?`)) return;
+        if (!session || !confirm(t('live.endConfirm', { name }))) return;
         button.disabled = true;
         const res = await viewerFetch(session, '/api/cast/stop', { deviceId }).catch(() => null);
         button.disabled = false;
         if (res?.ok) return;
-        statusText.textContent =
-          res?.status === 401 ? 'Your sign-in has expired. Reload the page.' : `Could not end the cast of ${name}.`;
+        statusText.textContent = res?.status === 401 ? t('error.expired') : t('live.endFailed', { name });
       }
 
       const signInUi = setupSignIn(
         async (newSession) => {
           await room.connect(newSession.url, newSession.token, { autoSubscribe: false }).catch(() => {
-            throw new Error('The streaming server is not reachable.');
+            throw new Error(t('error.streamingUnreachable'));
           });
           session = newSession;
           live.hidden = false;
@@ -219,6 +234,4 @@ import '../styles/cast.css';
         },
       );
     </script>
-
-  </body>
-</html>
+</Layout>

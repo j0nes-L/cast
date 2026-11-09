@@ -12,7 +12,7 @@ TURN over TLS is not available: it would need port 443, which Apache uses. Clien
 
 ## Files
 
-- `docker-compose.prod.yml` → `~/apps/cast/docker-compose.yml`
+- `docker-compose.prod.yml` → `~/apps/cast/docker-compose.yml`. It limits the LiveKit log (IP addresses, participant IDs) to 3 × 10 MB, as the privacy page says.
 - `livekit.prod.example.yaml` → `~/apps/cast/livekit.yaml` (chmod 600) with the real API key and secret. They must match `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` on Vercel.
 - `keyhelp-live.nwdl.org.conf`: individual HTTPS configuration of the KeyHelp domain `live.nwdl.org`
 

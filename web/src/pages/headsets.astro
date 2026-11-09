@@ -1,102 +1,109 @@
 ---
-import Header from '../components/Header.astro';
-import SignIn from '../components/SignIn.astro';
-import '../styles/cast.css';
+import { Trash } from "@lucide/astro";
+import Header from "../components/Header.astro";
+import SignIn from "../components/SignIn.astro";
+import Layout from "../layouts/Layout.astro";
+import { en_, label } from "../lib/i18n";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
-    <title>cast · Headsets</title>
-  </head>
-  <body>
-    <SignIn />
+<Layout title="title.headsets" current="headsets">
+  <SignIn />
 
-    <div id="content" hidden>
-      <Header current="headsets" />
-      <main class="page">
-        <section class="panel" aria-labelledby="list-title">
-          <h2 id="list-title">Headsets</h2>
-          <ul id="device-list"></ul>
-          <p id="list-message" class="muted" role="status"></p>
-          <p class="muted">Headsets are set up once with the setup script (app/setup.ps1). A removed headset shows up again when it casts or is set up again.</p>
-        </section>
-      </main>
-    </div>
+  <div id="content" hidden>
+    <Header title="title.headsets" />
+    <main class="page">
+      <p class="lead" data-t="headsets.lead">{en_("headsets.lead")}</p>
+      <section class="card">
+        <ul id="device-list"></ul>
+        <p id="list-message" class="muted" role="status"></p>
+      </section>
+    </main>
+  </div>
 
-    <script>
-      import { setupSignIn, viewerFetch, type Session } from '../lib/session';
+  <template id="device-template">
+    <li>
+      <span class="name"></span>
+      <span class="state"></span>
+      <button type="button" class="icon-button danger remove" {...label("headsets.remove")}><Trash /></button>
+    </li>
+  </template>
 
-      type Device = { deviceId: string; name: string; createdAt: string; casting: boolean };
+  <script>
+    import { t } from "../lib/i18n";
+    import { setupSignIn, viewerFetch, type Session } from "../lib/session";
 
-      const content = document.getElementById('content')!;
-      const list = document.getElementById('device-list')!;
-      const listMessage = document.getElementById('list-message')!;
-      let session: Session | null = null;
-      let poll = 0;
+    type Device = {
+      deviceId: string;
+      name: string;
+      createdAt: string;
+      casting: boolean;
+    };
 
-      async function loadDevices() {
-        if (!session) return;
-        const res = await viewerFetch(session, '/api/devices').catch(() => null);
-        if (!res?.ok) {
-          listMessage.textContent = res?.status === 401 ? 'Your sign-in has expired. Reload the page.' : 'Could not load the headsets.';
-          return;
-        }
-        const devices: Device[] = await res.json();
-        listMessage.textContent = devices.length ? '' : 'No headset is set up yet.';
-        list.replaceChildren(...devices.map(deviceItem));
+    const content = document.getElementById("content")!;
+    const list = document.getElementById("device-list")!;
+    const listMessage = document.getElementById("list-message")!;
+    const template = document.getElementById("device-template") as HTMLTemplateElement;
+    let session: Session | null = null;
+    let poll = 0;
+
+    async function loadDevices() {
+      if (!session) return;
+      const res = await viewerFetch(session, "/api/devices").catch(() => null);
+      if (!res?.ok) {
+        listMessage.textContent = res?.status === 401 ? t("error.expired") : t("headsets.loadFailed");
+        return;
       }
+      const devices: Device[] = await res.json();
+      listMessage.textContent = devices.length ? "" : t("headsets.empty");
+      list.replaceChildren(...devices.map(deviceItem));
+    }
 
-      // "09.11.2026 13:56", whatever the browser's language
-      const formatDate = (date: Date) =>
-        `${date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })} ` +
-        date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    // "09.11.2026 - 13:56", whatever the browser's language
+    const formatDate = (date: Date) =>
+      `${date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })} - ` +
+      date.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
 
-      function deviceItem(device: Device) {
-        const item = document.createElement('li');
-        const name = document.createElement('span');
-        name.className = 'name';
-        name.textContent = device.name;
-        const state = document.createElement('span');
-        state.className = device.casting ? 'state live' : 'state';
-        state.textContent = device.casting ? 'Casting' : `Set up ${formatDate(new Date(device.createdAt))}`;
-        const remove = document.createElement('button');
-        remove.type = 'button';
-        remove.className = 'remove';
-        remove.textContent = 'Remove';
-        remove.onclick = () => removeDevice(device, remove);
-        item.append(name, state, remove);
-        return item;
+    function deviceItem(device: Device) {
+      const item = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      item.querySelector(".name")!.textContent = device.name;
+      const state = item.querySelector(".state")!;
+      state.classList.toggle("live", device.casting);
+      state.textContent = device.casting
+        ? t("headsets.casting")
+        : t("headsets.setUp", { date: formatDate(new Date(device.createdAt)) });
+      const remove = item.querySelector<HTMLButtonElement>(".remove")!;
+      remove.onclick = () => removeDevice(device, remove);
+      return item;
+    }
+
+    // Only the list forgets it: the headset keeps its credentials and shows up again when it casts.
+    async function removeDevice(device: Device, button: HTMLButtonElement) {
+      if (!session || !confirm(t("headsets.removeConfirm", { name: device.name }))) return;
+      button.disabled = true;
+      const res = await viewerFetch(session, "/api/devices/remove", {
+        deviceId: device.deviceId,
+      }).catch(() => null);
+      if (!res?.ok && res?.status !== 404) {
+        button.disabled = false;
+        listMessage.textContent =
+          res?.status === 401 ? t("error.expired") : t("headsets.removeFailed", { name: device.name });
+        return;
       }
+      await loadDevices();
+    }
 
-      // Only the list forgets it: the headset keeps its credentials and shows up again when it casts.
-      async function removeDevice(device: Device, button: HTMLButtonElement) {
-        if (!session || !confirm(`Remove ${device.name} from the list? A running cast ends.`)) return;
-        button.disabled = true;
-        const res = await viewerFetch(session, '/api/devices/remove', { deviceId: device.deviceId }).catch(() => null);
-        if (!res?.ok && res?.status !== 404) {
-          button.disabled = false;
-          listMessage.textContent = res?.status === 401 ? 'Your sign-in has expired. Reload the page.' : `Could not remove ${device.name}.`;
-          return;
-        }
+    setupSignIn(
+      async (newSession) => {
+        session = newSession;
+        content.hidden = false;
         await loadDevices();
-      }
-
-      setupSignIn(
-        async (newSession) => {
-          session = newSession;
-          content.hidden = false;
-          await loadDevices();
-          poll = window.setInterval(loadDevices, 5000);
-        },
-        () => {
-          session = null;
-          content.hidden = true;
-          clearInterval(poll);
-        },
-      );
-    </script>
-  </body>
-</html>
+        poll = window.setInterval(loadDevices, 5000);
+      },
+      () => {
+        session = null;
+        content.hidden = true;
+        clearInterval(poll);
+      },
+    );
+  </script>
+</Layout>

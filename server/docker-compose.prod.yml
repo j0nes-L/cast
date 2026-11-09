@@ -8,3 +8,8 @@ services:
     network_mode: host # 10,000 UDP ports for media; publishing them through Docker would be slow
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml:ro
+    logging: # the log holds IP addresses; the privacy page promises a limited size
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

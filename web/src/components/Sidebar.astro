@@ -1,0 +1,25 @@
+---
+// Floating icon bar like on newworkdesignlab.org: right edge on wide screens, bottom on phones.
+import { Cast, LogOut, QrCode, RectangleGoggles, ShieldCheck } from '@lucide/astro';
+import { en_ } from '../lib/i18n';
+
+interface Props {
+  current?: 'live' | 'headsets' | 'codes' | 'privacy';
+}
+const { current } = Astro.props;
+const page = (name: Props['current']) => (current === name ? 'page' : undefined);
+---
+
+<nav class="rail" aria-label="Navigation">
+  <a href="/" aria-current={page('live')}><Cast strokeWidth={1.8} /><span class="rail-label" data-t="nav.live">{en_('nav.live')}</span></a>
+  <a href="/headsets" aria-current={page('headsets')}><RectangleGoggles strokeWidth={1.8} /><span class="rail-label" data-t="nav.headsets">{en_('nav.headsets')}</span></a>
+  <a href="/codes" aria-current={page('codes')}><QrCode strokeWidth={1.8} /><span class="rail-label" data-t="nav.codes">{en_('nav.codes')}</span></a>
+  <a href="/privacy" aria-current={page('privacy')}><ShieldCheck strokeWidth={1.8} /><span class="rail-label" data-t="nav.privacy">{en_('nav.privacy')}</span></a>
+  <span class="rail-divider" aria-hidden="true"></span>
+  <button id="language" type="button">
+    <img class="flag flag-de" src="/flag-de.svg" alt="" width="22" height="22" />
+    <img class="flag flag-en" src="/flag-en.svg" alt="" width="22" height="22" />
+    <span class="rail-label" data-t="nav.language">{en_('nav.language')}</span>
+  </button>
+  <button id="sign-out" type="button" hidden><LogOut strokeWidth={1.8} /><span class="rail-label" data-t="nav.signOut">{en_('nav.signOut')}</span></button>
+</nav>
