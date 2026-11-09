@@ -1,4 +1,4 @@
-package org.nwdl.cast
+package dev.jonasludorf.cast
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -45,7 +45,7 @@ class CastService : Service() {
             manager.createNotificationChannel(NotificationChannel(CHANNEL, "Casting", NotificationManager.IMPORTANCE_LOW))
             val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
             return Notification.Builder(context, CHANNEL)
-                .setContentTitle(if (live) "NWDL Cast is live" else "NWDL Cast is ready")
+                .setContentTitle(if (live) "Cast is live" else "Cast is ready")
                 .setContentText(if (live) "What you see and hear is being shared." else "Show a start code to start casting.")
                 .setSmallIcon(android.R.drawable.presence_video_online)
                 .setContentIntent(open)

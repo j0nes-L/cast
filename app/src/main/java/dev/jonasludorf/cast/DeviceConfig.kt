@@ -1,4 +1,4 @@
-package org.nwdl.cast
+package dev.jonasludorf.cast
 
 import android.content.Context
 import org.json.JSONObject

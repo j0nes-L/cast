@@ -1,4 +1,4 @@
-# One-time setup of a headset for NWDL Cast, on a PC with the headset connected over USB (developer mode).
+# One-time setup of a headset for Cast, on a PC with the headset connected over USB (developer mode).
 # It registers the headset with the cast website (setting it up again renews its credentials), copies the credentials
 # to the headset and allows the app to capture without the share dialog and to start in standby after a reboot.
 #
@@ -6,11 +6,11 @@
 #   .\setup.ps1 -Name Empfang                    # shown as "Quest 3 - Empfang"
 #   .\setup.ps1 -Server http://localhost:4321    # local dev stack
 #
-# NWDL Cast has to be installed already (from the store, or with adb install for development).
+# Cast has to be installed already (from the store, or with adb install for development).
 param([string]$Server = "https://cast.nwdl.org", [string]$Name)
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # Windows PowerShell 5.1 defaults to older TLS
-$package = "org.nwdl.cast"
+$package = "dev.jonasludorf.cast"
 $Server = $Server.TrimEnd("/")
 
 $adbPath = (Get-Command adb -ErrorAction SilentlyContinue).Source
@@ -25,7 +25,7 @@ $devices = @(& $adbPath devices | Select-String "\tdevice$")
 if ($devices.Count -ne 1) { throw "Connect exactly one headset over USB (found $($devices.Count))." }
 $serial = (Adb get-serialno).Trim()
 $model = (Adb shell getprop ro.product.model).Trim()
-if (-not (& $adbPath shell pm path $package)) { throw "Install NWDL Cast on the headset first." }
+if (-not (& $adbPath shell pm path $package)) { throw "Install Cast on the headset first." }
 if (-not $Name) { $Name = Read-Host "Name of this headset (shown as '$model - <name>')" }
 if (-not $Name.Trim()) { throw "The headset needs a name." }
 
@@ -68,4 +68,4 @@ if ($uri.Host -eq "localhost") {
 
 Adb shell am force-stop $package
 Adb shell am start -n "$package/.MainActivity" | Out-Null
-Write-Host "Set up as '$($device.name)'. NWDL Cast is in standby now and after every reboot."
+Write-Host "Set up as '$($device.name)'. Cast is in standby now and after every reboot."

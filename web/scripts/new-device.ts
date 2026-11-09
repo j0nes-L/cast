@@ -7,7 +7,7 @@ if (!DEVICE_ID.test(deviceId)) {
   process.exit(1);
 }
 const deviceSecret = randomBytes(32).toString('base64url');
-console.log('cast.json for the headset (/sdcard/Android/data/org.nwdl.cast/files/):');
+console.log('cast.json for the headset (/sdcard/Android/data/dev.jonasludorf.cast/files/):');
 console.log(JSON.stringify({ deviceId, deviceSecret }, null, 2));
 console.log('\nEntry for the DEVICES array:');
 console.log(JSON.stringify({ deviceId, secretSha256: sha256Hex(deviceSecret) }));

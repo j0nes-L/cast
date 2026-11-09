@@ -9,12 +9,12 @@ plugins {
 val keystore = Properties().apply { file("keystore.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
 
 android {
-    namespace = "org.nwdl.cast"
+    namespace = "dev.jonasludorf.cast"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId = "org.nwdl.cast"
+        applicationId = "dev.jonasludorf.cast"
         minSdk = 32 // Horizon OS
         targetSdk = 34
         versionCode = 1

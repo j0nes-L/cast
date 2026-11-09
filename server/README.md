@@ -1,6 +1,6 @@
 # cast server (LiveKit)
 
-LiveKit runs on `server.nwdl.org` (212.227.71.42) in `~/apps/cast`, next to the other NWDL apps. The website and its token API run on Vercel (`web/`).
+LiveKit runs on `server.nwdl.org` (212.227.71.42) in `~/apps/cast`, next to the other apps on that server. The website and its token API run on Vercel (`web/`).
 
 | Part | Where |
 |---|---|

@@ -1,4 +1,4 @@
-/* NewWorkDesignLab style (newworkdesignlab.org): light, navy ink, blue accent, Playfair Display headings, Inter text */
+/* Light, navy ink, blue accent, Playfair Display headings, Inter text */
 :root {
   color-scheme: light;
   --bg: #fff;
@@ -77,6 +77,7 @@ p {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-decoration: none;
 }
 .error {
   color: var(--danger);
@@ -218,18 +219,13 @@ button:disabled {
   gap: 0.75rem 1.25rem;
   padding: 1.75rem 0 1.25rem;
 }
-.brand img {
-  display: block;
-  width: 3.5rem;
-  height: 3.5rem;
-}
 #status {
   margin-left: auto;
   color: var(--ink-soft);
   font-size: 0.9rem;
 }
 
-/* Side bar, as on newworkdesignlab.org */
+/* Side bar */
 .rail {
   position: fixed;
   z-index: 10;
@@ -322,9 +318,15 @@ html:not([lang='de']) .flag-en {
   margin: 12vh auto 0;
   padding: 2rem;
 }
-.sign-in-logo {
-  width: 4.5rem;
-  height: 4.5rem;
+.sign-in-mark {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 0.75rem 1.75rem #3a6fd852;
 }
 .sign-in h1 {
   font-size: 2.5rem;
@@ -686,10 +688,6 @@ html:not([lang='de']) .legal [data-lang='de'] {
   }
   .page-head h1 {
     font-size: 1.6rem;
-  }
-  .brand img {
-    width: 2.25rem;
-    height: 2.25rem;
   }
   .tile.focused video {
     max-height: calc(100vh - 7.5rem);

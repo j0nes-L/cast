@@ -17,7 +17,7 @@ const en = {
   'nav.language': 'Deutsch',
   'nav.signOut': 'Sign out',
   'footer.privacy': 'Privacy',
-  'footer.imprint': 'Imprint',
+  'footer.legal': 'Legal notice',
 
   'signIn.lead': 'Live view of what the headsets see.',
   'signIn.password': 'Password',
@@ -82,7 +82,7 @@ const de: Record<Key, string> = {
   'nav.language': 'English',
   'nav.signOut': 'Abmelden',
   'footer.privacy': 'Datenschutz',
-  'footer.imprint': 'Impressum',
+  'footer.legal': 'Rechtliches',
 
   'signIn.lead': 'Live-Ansicht dessen, was die Headsets sehen.',
   'signIn.password': 'Passwort',

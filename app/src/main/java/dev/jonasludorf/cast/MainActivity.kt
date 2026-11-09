@@ -1,4 +1,4 @@
-package org.nwdl.cast
+package dev.jonasludorf.cast
 
 import android.Manifest
 import android.app.Activity
@@ -14,7 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import org.nwdl.cast.CastSession.State
+import dev.jonasludorf.cast.CastSession.State
 
 class MainActivity : ComponentActivity() {
 
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         /** Set by [BootReceiver]: enter standby and get out of the way. */
         const val EXTRA_AUTOSTART = "autostart"
 
-        private const val NOT_SET_UP = "This headset is not set up for NWDL Cast yet.\n\n" +
+        private const val NOT_SET_UP = "This headset is not set up for casting yet.\n\n" +
             "Connect it to a PC and run the setup script (app/setup.ps1, see cast.nwdl.org)."
     }
 

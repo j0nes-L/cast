@@ -1,4 +1,4 @@
-# NWDL Cast
+# Cast
 
 Shows in the browser what people wearing a Meta Quest see, at `https://cast.nwdl.org`. Each headset casts its view with microphone and app sound; viewers sign in with a shared password.
 

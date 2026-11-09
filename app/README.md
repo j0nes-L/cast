@@ -1,4 +1,4 @@
-# NWDL Cast (headset app)
+# Cast (headset app)
 
 Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphone and app sound, to `https://cast.nwdl.org`. Other apps need no integration.
 
@@ -7,9 +7,10 @@ Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphon
 - **Standby:** opening the app starts a local screen capture (nothing is sent) and looks for QR codes in it, also while another app is in front. After a reboot the app returns to standby by itself.
 - **Casting:** holding the start code from `cast.nwdl.org/codes` in front of the headset, or pressing "Start casting", publishes the capture to the website. The stop code, "Stop casting" or "End cast" on the website go back to standby.
 - **Quit** stops everything, also after reboots, until the app is opened again.
+
 ## Setup (once per headset)
 
-The headset needs developer mode and a USB connection to a Windows PC with adb. Install NWDL Cast (store, or `adb install` for development), then:
+The headset needs developer mode and a USB connection to a Windows PC with adb. Install Cast (store, or `adb install` for development), then:
 
 ```powershell
 .\setup.ps1                                 # https://cast.nwdl.org, asks for the name
@@ -49,13 +50,13 @@ JAVA_HOME=".../OpenJDK" ./gradlew assembleRelease   # build/outputs/apk/release/
 It is signed with the release key from `keystore.properties` (not committed):
 
 ```properties
-storeFile=C:/Users/jludo/.android/nwdl-cast-release.jks
+storeFile=C:/Users/jludo/.android/cast-release.jks
 storePassword=...
-keyAlias=nwdl-cast
+keyAlias=cast
 keyPassword=...
 ```
 
-Every store update must be signed with this same key, so keep the `.jks` file and its password backed up (e.g. in Vaultwarden). Without `keystore.properties` the release APK stays unsigned. Raise `versionCode` in `build.gradle.kts` before each upload. A store build replaces a debug build only after `adb uninstall org.nwdl.cast`, because the signatures differ.
+Every store update must be signed with this same key, so keep the `.jks` file and its password backed up (e.g. in a password manager). Without `keystore.properties` the release APK stays unsigned. Raise `versionCode` in `build.gradle.kts` before each upload. A store build replaces a debug build only after `adb uninstall dev.jonasludorf.cast`, because the signatures differ.
 
 ## Local testing over USB
 
