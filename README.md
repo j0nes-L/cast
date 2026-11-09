@@ -15,7 +15,7 @@ The headset app and the browser both connect to LiveKit (`wss://live.nwdl.org`).
 | Page | |
 |---|---|
 | `/` | Live view, one tile per casting headset. Only the focused tile (or the only one) plays sound. Buttons per tile: focus, mute, fullscreen, end cast. |
-| `/headsets` | Registered headsets and whether they are casting (read-only) |
+| `/headsets` | Registered headsets and whether they are casting. "Remove" deletes a headset: a running cast ends right away, and the headset stops its standby and forgets its credentials (within a minute). |
 | `/codes` | Large QR codes that start and stop casting when held in front of a headset in standby (no sign-in) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |
 
@@ -26,6 +26,8 @@ The headset app and the browser both connect to LiveKit (`wss://live.nwdl.org`).
 | `POST /api/token/device` | Headset credentials → token for casting |
 | `GET /api/devices` | Registered headsets (viewer token) |
 | `POST /api/devices` | Registers a headset or renews its credentials (viewer token, used by `app/setup.ps1`) |
+| `POST /api/devices/remove` | Removes a headset (viewer token) |
+| `POST /api/devices/status` | Headset credentials → 200 while registered, 401 once removed; the app asks every minute in standby |
 | `POST /api/cast/stop` | Ends the cast of a headset (viewer token) |
 
 ### Local development

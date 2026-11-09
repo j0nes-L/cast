@@ -7,6 +7,7 @@ Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphon
 - **Standby:** opening the app starts a local screen capture (nothing is sent) and looks for QR codes in it, also while another app is in front. After a reboot the app returns to standby by itself.
 - **Casting:** holding the start code from `cast.nwdl.org/codes` in front of the headset, or pressing "Start casting", publishes the capture to the website. The stop code, "Stop casting" or "End cast" on the website go back to standby.
 - **Quit** stops everything, also after reboots, until the app is opened again.
+- **Removed on the website** (`/headsets`): the app checks every minute in standby (right away when its cast is ended from the website). Once removed, it stops, turns off the autostart, deletes its credentials and shows the setup notice.
 
 ## Setup (once per headset)
 

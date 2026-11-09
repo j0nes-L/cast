@@ -25,5 +25,8 @@ export const POST: APIRoute = async ({ request }) => {
   const serial = body?.serial;
   const name = deviceName(body?.model, body?.name);
   if (typeof serial !== 'string' || !serial.trim() || serial.length > 64 || !name) return badRequest();
-  return Response.json(await registerDevice(store, serial.trim(), name));
+  // charset: Windows PowerShell 5.1 reads JSON without it as Latin-1 and breaks umlauts in the name
+  return Response.json(await registerDevice(store, serial.trim(), name), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
 };

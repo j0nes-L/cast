@@ -236,3 +236,6 @@ nav a[aria-current='page'] {
 .state.live {
   color: var(--live);
 }
+#device-list .remove {
+  margin-left: auto;
+}

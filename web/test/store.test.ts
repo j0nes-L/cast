@@ -40,3 +40,12 @@ test('different headsets get different devices', async () => {
   assert.notEqual(a.deviceId, b.deviceId);
   assert.equal((await store.listDevices()).length, 2);
 });
+
+test('a removed headset is gone and its credentials stop working', async () => {
+  const store = await newStore();
+  const device = await registerDevice(store, 'SERIAL1', 'Quest 3 - Lab');
+  assert.equal(await store.deleteDevice(device.deviceId), true);
+  assert.equal(await store.getDevice(device.deviceId), null);
+  assert.equal((await store.listDevices()).length, 0);
+  assert.equal(await store.deleteDevice(device.deviceId), false);
+});

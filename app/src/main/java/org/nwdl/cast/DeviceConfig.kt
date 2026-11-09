@@ -7,14 +7,28 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /** Thrown when the server no longer accepts this headset's credentials. */
-class NotSetUpException : Exception("The credentials of this headset are no longer valid. Run the setup script again.")
+class NotSetUpException : Exception("The credentials of this headset are no longer valid.")
 
 /** Credentials of this headset, written by the setup script (app/setup.ps1). */
 data class DeviceConfig(val server: String, val deviceId: String, val deviceSecret: String, val name: String) {
 
     /** Asks the cast website for a LiveKit token. Blocking, call off the main thread. */
     fun fetchToken(): Pair<String, String> {
-        val connection = URL("$server/api/token/device").openConnection() as HttpURLConnection
+        val json = JSONObject(post("/api/token/device"))
+        return json.getString("url") to json.getString("token")
+    }
+
+    /** False once the headset was removed on the website. Blocking; throws when the website is not reachable. */
+    fun isRegistered(): Boolean = try {
+        post("/api/devices/status")
+        true
+    } catch (e: NotSetUpException) {
+        false
+    }
+
+    // Sends the credentials to [path] and returns the response body; 401 means they are no longer valid.
+    private fun post(path: String): String {
+        val connection = URL("$server$path").openConnection() as HttpURLConnection
         try {
             connection.requestMethod = "POST"
             connection.doOutput = true
@@ -26,10 +40,9 @@ data class DeviceConfig(val server: String, val deviceId: String, val deviceSecr
             when (val status = connection.responseCode) {
                 200 -> Unit
                 401 -> throw NotSetUpException()
-                else -> throw IllegalStateException("Token request failed (HTTP $status)")
+                else -> throw IllegalStateException("Request to the cast website failed (HTTP $status)")
             }
-            val json = JSONObject(connection.inputStream.bufferedReader().readText())
-            return json.getString("url") to json.getString("token")
+            return connection.inputStream.bufferedReader().readText()
         } finally {
             connection.disconnect()
         }

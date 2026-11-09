@@ -21,7 +21,7 @@ import '../styles/cast.css';
           <h2 id="list-title">Headsets</h2>
           <ul id="device-list"></ul>
           <p id="list-message" class="muted" role="status"></p>
-          <p class="muted">Headsets are set up once with the setup script (app/setup.ps1).</p>
+          <p class="muted">Headsets are set up once with the setup script (app/setup.ps1). A removed headset stops casting and forgets its credentials.</p>
         </section>
       </main>
     </div>
@@ -57,8 +57,26 @@ import '../styles/cast.css';
         const state = document.createElement('span');
         state.className = device.casting ? 'state live' : 'state';
         state.textContent = device.casting ? 'Casting' : `Set up ${new Date(device.createdAt).toLocaleDateString()}`;
-        item.append(name, state);
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove';
+        remove.textContent = 'Remove';
+        remove.onclick = () => removeDevice(device, remove);
+        item.append(name, state, remove);
         return item;
+      }
+
+      // The headset notices within a minute (right away while casting) and shows the setup notice.
+      async function removeDevice(device: Device, button: HTMLButtonElement) {
+        if (!session || !confirm(`Remove ${device.name}? It stops casting and has to be set up again with the setup script.`)) return;
+        button.disabled = true;
+        const res = await viewerFetch(session, '/api/devices/remove', { deviceId: device.deviceId }).catch(() => null);
+        if (!res?.ok && res?.status !== 404) {
+          button.disabled = false;
+          listMessage.textContent = res?.status === 401 ? 'Your sign-in has expired. Reload the page.' : `Could not remove ${device.name}.`;
+          return;
+        }
+        await loadDevices();
       }
 
       setupSignIn(
