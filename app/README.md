@@ -22,7 +22,7 @@ The script asks for the headset's name and the website password (or reads `$env:
 - registers the headset with the website as "<model> - <name>", e.g. "Quest 3 - Empfang". The serial number identifies it, so running the script again renames it and replaces the credentials.
 - copies the credentials to the headset; the app moves them into its private storage
 - grants microphone and notification permission
-- allows screen capture without the share dialog (`PROJECT_MEDIA`) and starting from the background after a reboot (`SYSTEM_ALERT_WINDOW`)
+- allows screen capture without the share dialog (`PROJECT_MEDIA`)
 
 Release builds only use `https://cast.nwdl.org`. Without the setup, the app shows a notice instead of the casting buttons.
 

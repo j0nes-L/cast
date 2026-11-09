@@ -58,8 +58,7 @@ try {
 
 Adb shell pm grant $package android.permission.RECORD_AUDIO
 Adb shell pm grant $package android.permission.POST_NOTIFICATIONS
-Adb shell appops set $package PROJECT_MEDIA allow       # screen capture without the share dialog
-Adb shell appops set $package SYSTEM_ALERT_WINDOW allow # start in standby from the background, e.g. after a reboot
+Adb shell appops set $package PROJECT_MEDIA allow # screen capture without the share dialog
 
 $uri = [Uri]$Server
 if ($uri.Host -eq "localhost") {

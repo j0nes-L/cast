@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 
 /**
- * Brings the app back into standby after a reboot, until it is quit. Starting from the background needs the
- * SYSTEM_ALERT_WINDOW app op that the setup script grants.
+ * Brings the app back into standby after a reboot, until it is quit. Horizon OS (tested on v207) allows this
+ * activity start from the boot broadcast; plain Android would need SYSTEM_ALERT_WINDOW.
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
