@@ -13,13 +13,14 @@ Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphon
 The headset needs developer mode and a USB connection to a Windows PC with adb. Install NWDL Cast (store, or `adb install` for development), then:
 
 ```powershell
-.\setup.ps1                                 # https://cast.nwdl.org
+.\setup.ps1                                 # https://cast.nwdl.org, asks for the name
+.\setup.ps1 -Name Empfang                   # shown as "Quest 3 - Empfang"
 .\setup.ps1 -Server http://localhost:4321   # local dev stack
 ```
 
-The script asks for the website password (or reads `$env:CAST_PASSWORD`) and:
+The script asks for the headset's name and the website password (or reads `$env:CAST_PASSWORD`) and:
 
-- registers the headset with the website, named after its model and a random code, e.g. "Quest 3 - K7M2QX". The serial number identifies it, so running the script again keeps the name and replaces the credentials.
+- registers the headset with the website as "<model> - <name>", e.g. "Quest 3 - Empfang". The serial number identifies it, so running the script again renames it and replaces the credentials.
 - copies the credentials to the headset; the app moves them into its private storage
 - grants microphone and notification permission
 - allows screen capture without the share dialog (`PROJECT_MEDIA`) and starting from the background after a reboot (`SYSTEM_ALERT_WINDOW`)

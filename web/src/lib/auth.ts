@@ -11,15 +11,21 @@ export type Device = { deviceId: string; secretSha256: string };
 // No 0/O, 1/I/L, so that the code can be read off and typed without mix-ups
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
-/** Random 6-character code of a paired headset, e.g. "K7M2QX"; also its device ID. */
+/** Random 6-character device ID of a headset, e.g. "K7M2QX". */
 export function deviceCode(): string {
   return Array.from({ length: 6 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
 }
 
-/** "<model> - <code>", e.g. "Quest 3 - K7M2QX"; the model comes from the headset and is cleaned up. */
-export function deviceName(model: unknown, code: string): string {
-  const clean = typeof model === 'string' ? model.replace(/[^\w .-]/g, '').trim().slice(0, 24) : '';
-  return `${clean || 'Quest'} - ${code}`;
+const cleanText = (value: unknown, max: number) =>
+  typeof value === 'string' ? value.replace(/[^\p{L}\p{N} ._-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, max) : '';
+
+/**
+ * "<model> - <label>", e.g. "Quest 3 - Empfang": the model comes from the headset, the label is typed in the setup
+ * script. Empty when the label has nothing usable left after cleaning.
+ */
+export function deviceName(model: unknown, label: unknown): string {
+  const cleanLabel = cleanText(label, 32);
+  return cleanLabel && `${cleanText(model, 24) || 'Quest'} - ${cleanLabel}`;
 }
 
 // Format scrypt:<saltHex>:<hashHex>. ':' instead of '$', because .env loaders expand '$'.

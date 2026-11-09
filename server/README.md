@@ -19,7 +19,7 @@ TURN over TLS is not available: it would need port 443, which Apache uses. Clien
 ## One-time setup
 
 1. **DNS (Cloudflare):** `live` A 212.227.71.42, proxied. `turn` A 212.227.71.42, **DNS only**.
-2. **KeyHelp:** add the domain `live.nwdl.org` for `nwdl-user` with a Let's Encrypt certificate, and paste `keyhelp-live.nwdl.org.conf` as its individual HTTPS configuration.
+2. **KeyHelp:** add the domain `live.nwdl.org` for `nwdl-user` with a Let's Encrypt certificate. As admin, under Domains → "Customize view" show subdomains, edit `live.nwdl.org` → Apache settings, and paste `keyhelp-live.nwdl.org.conf` into the HTTPS field. KeyHelp applies it within a few minutes; `https://live.nwdl.org` then answers "OK" instead of the KeyHelp default page.
 3. **Firewall** (KeyHelp → Firewall, and the IONOS cloud panel if a policy is active): allow 7881/tcp, 3478/udp, 40000–40999/udp, 50000–60000/udp. Port 7880 stays closed.
    Saving the KeyHelp firewall drops Docker's iptables rules, and the containers lose outbound network (bots stop answering). `docker-after-keyhelp-firewall.path` / `.service` restart Docker automatically after each KeyHelp firewall change: copy both to `/etc/systemd/system`, then `sudo systemctl enable --now docker-after-keyhelp-firewall.path`. Without them, run `sudo systemctl restart docker`.
 4. Copy the two files to `~/apps/cast` and start: `docker compose up -d`.

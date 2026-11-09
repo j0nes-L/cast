@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { LIVEKIT_PUBLIC_URL } from 'astro:env/server';
+import { deviceName } from '../../../lib/auth';
 import { registerDevice } from '../../../lib/devices';
 import { badRequest, isViewer, keys, store, unauthorized } from '../../../lib/server';
 import { castingDevices } from '../../../lib/tokens';
@@ -22,6 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!(await isViewer(request))) return unauthorized();
   const body = await request.json().catch(() => null);
   const serial = body?.serial;
-  if (typeof serial !== 'string' || !serial.trim() || serial.length > 64) return badRequest();
-  return Response.json(await registerDevice(store, serial.trim(), body.model));
+  const name = deviceName(body?.model, body?.name);
+  if (typeof serial !== 'string' || !serial.trim() || serial.length > 64 || !name) return badRequest();
+  return Response.json(await registerDevice(store, serial.trim(), name));
 };

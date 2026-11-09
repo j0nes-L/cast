@@ -39,12 +39,18 @@ test('stay-signed-in token: valid until expiry or password change, not forgeable
   assert.equal(isRememberToken('secret', hash, ''), false);
 });
 
-test('headset names: model plus a readable random code', () => {
+test('headset IDs are readable random codes', () => {
   const code = deviceCode();
   assert.match(code, /^[A-HJKMNP-Z2-9]{6}$/);
   assert.equal(DEVICE_ID.test(code), true);
-  assert.equal(deviceName('Quest 3', 'K7M2QX'), 'Quest 3 - K7M2QX');
-  assert.equal(deviceName('Quest 3S<script>', 'K7M2QX'), 'Quest 3Sscript - K7M2QX');
-  assert.equal(deviceName(undefined, 'K7M2QX'), 'Quest - K7M2QX');
-  assert.equal(deviceName('x'.repeat(100), 'K7M2QX').length, 24 + ' - K7M2QX'.length);
+});
+
+test('headset names: model plus the typed label', () => {
+  assert.equal(deviceName('Quest 3', 'Empfang'), 'Quest 3 - Empfang');
+  assert.equal(deviceName('Quest 3', '  Raum   Süd 2 '), 'Quest 3 - Raum Süd 2');
+  assert.equal(deviceName('Quest 3S<script>', '<b>Lab</b>'), 'Quest 3Sscript - bLabb');
+  assert.equal(deviceName(undefined, 'Lab'), 'Quest - Lab');
+  assert.equal(deviceName('x'.repeat(100), 'y'.repeat(100)), `${'x'.repeat(24)} - ${'y'.repeat(32)}`);
+  assert.equal(deviceName('Quest 3', '<>'), '');
+  assert.equal(deviceName('Quest 3', undefined), '');
 });

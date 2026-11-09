@@ -13,9 +13,9 @@ export default defineConfig({
       LIVEKIT_API_SECRET: secret(),
       LIVEKIT_PUBLIC_URL: secret(),
       VIEWER_PASSWORD_HASH: secret(),
-      // Static devices, e.g. the test publisher's; headsets are paired by QR code and live in the store
+      // Static devices, e.g. the test publisher's; headsets registered by app/setup.ps1 live in the store
       DEVICES: secret(true),
-      // Upstash Redis (Vercel Marketplace) for paired headsets; without it a local file is used in development
+      // Upstash Redis (Vercel Marketplace) for registered headsets; without it a local file is used in development
       KV_REST_API_URL: secret(true),
       KV_REST_API_TOKEN: secret(true),
     },

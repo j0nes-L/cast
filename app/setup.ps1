@@ -2,11 +2,12 @@
 # It registers the headset with the cast website (setting it up again renews its credentials), copies the credentials
 # to the headset and allows the app to capture without the share dialog and to start in standby after a reboot.
 #
-#   .\setup.ps1                                  # https://cast.nwdl.org
+#   .\setup.ps1                                  # https://cast.nwdl.org, asks for the name
+#   .\setup.ps1 -Name Empfang                    # shown as "Quest 3 - Empfang"
 #   .\setup.ps1 -Server http://localhost:4321    # local dev stack
 #
 # NWDL Cast has to be installed already (from the store, or with adb install for development).
-param([string]$Server = "https://cast.nwdl.org")
+param([string]$Server = "https://cast.nwdl.org", [string]$Name)
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # Windows PowerShell 5.1 defaults to older TLS
 $package = "org.nwdl.cast"
@@ -25,6 +26,8 @@ if ($devices.Count -ne 1) { throw "Connect exactly one headset over USB (found $
 $serial = (Adb get-serialno).Trim()
 $model = (Adb shell getprop ro.product.model).Trim()
 if (-not (& $adbPath shell pm path $package)) { throw "Install NWDL Cast on the headset first." }
+if (-not $Name) { $Name = Read-Host "Name of this headset (shown as '$model - <name>')" }
+if (-not $Name.Trim()) { throw "The headset needs a name." }
 
 # Register with the website (the password can also come from $env:CAST_PASSWORD, e.g. for setting up many headsets)
 $password = $env:CAST_PASSWORD
@@ -34,8 +37,10 @@ if (-not $password) {
 }
 try {
     $session = Invoke-RestMethod -Method Post -Uri "$Server/api/token/viewer" -ContentType "application/json" -Body (@{ password = $password } | ConvertTo-Json)
-    $device = Invoke-RestMethod -Method Post -Uri "$Server/api/devices" -ContentType "application/json" `
-        -Headers @{ Authorization = "Bearer $($session.token)" } -Body (@{ serial = $serial; model = $model } | ConvertTo-Json)
+    # As UTF-8 bytes: Windows PowerShell 5.1 would send a string body as Latin-1 and break umlauts in the name
+    $body = [Text.Encoding]::UTF8.GetBytes((@{ serial = $serial; model = $model; name = $Name } | ConvertTo-Json))
+    $device = Invoke-RestMethod -Method Post -Uri "$Server/api/devices" -ContentType "application/json; charset=utf-8" `
+        -Headers @{ Authorization = "Bearer $($session.token)" } -Body $body
 } catch {
     throw "Registering with $Server failed: $($_.Exception.Message)"
 }
