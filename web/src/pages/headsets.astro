@@ -94,8 +94,8 @@ import { en_, label } from "../lib/i18n";
     setupSignIn(
       async (newSession) => {
         session = newSession;
+        await loadDevices(); // under the loading circle; the page shows once the list is there
         content.hidden = false;
-        await loadDevices();
         poll = window.setInterval(loadDevices, 5000);
       },
       () => {
