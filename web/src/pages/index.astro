@@ -38,7 +38,7 @@ import '../styles/cast.css';
     </template>
 
     <script>
-      import { Room, RoomEvent, Track, type RemoteParticipant } from 'livekit-client';
+      import { DisconnectReason, Room, RoomEvent, Track, type RemoteParticipant } from 'livekit-client';
       import { setupSignIn, viewerFetch, type Session } from '../lib/session';
 
       const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -66,7 +66,6 @@ import '../styles/cast.css';
       let muted = false;
       let mutedFor: string | null = null; // the focus the mute applies to; a new focus starts unmuted
       let session: Session | null = null;
-      let signingOut = false;
 
       const room = new Room({ adaptiveStream: true, dynacast: true });
 
@@ -179,13 +178,18 @@ import '../styles/cast.css';
         .on(RoomEvent.AudioPlaybackStatusChanged, render)
         .on(RoomEvent.Reconnecting, () => (statusText.textContent = 'Reconnecting…'))
         .on(RoomEvent.Reconnected, () => (statusText.textContent = ''))
-        .on(RoomEvent.Disconnected, () => {
-          for (const tile of tiles.values()) removeTile(tile.participant);
-          live.hidden = true;
-          session = null;
-          if (!signingOut) signInUi.showSignIn('The connection was closed. Please sign in again.');
-          signingOut = false;
+        .on(RoomEvent.Disconnected, (reason) => {
+          // Our own disconnect: sign-out handles it, and when leaving the page the next page takes over
+          if (reason === DisconnectReason.CLIENT_INITIATED) return;
+          hideLive();
+          signInUi.showSignIn('The connection was closed. Please sign in again.');
         });
+
+      function hideLive() {
+        for (const tile of tiles.values()) removeTile(tile.participant);
+        live.hidden = true;
+        session = null;
+      }
 
 
       // The headset leaves the room; its tile disappears with the ParticipantDisconnected event.
@@ -210,8 +214,8 @@ import '../styles/cast.css';
           render();
         },
         () => {
-          signingOut = true;
           room.disconnect();
+          hideLive();
         },
       );
     </script>
