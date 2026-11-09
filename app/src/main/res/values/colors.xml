@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same palette as the website (web/src/styles/cast.css) -->
+<resources>
+    <color name="paper">#F4F1EA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="ink">#111111</color>
+    <color name="ink_soft">#3A3A3A</color>
+    <color name="ok">#1FBF5F</color>
+    <color name="warn">#FFC400</color>
+    <color name="bad">#FF3B30</color>
+</resources>

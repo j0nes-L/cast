@@ -1,5 +1,5 @@
 ---
-import { ArrowRight, Cast } from '@lucide/astro';
+import { ArrowRight, Cast, Lock } from '@lucide/astro';
 import { en_, label } from '../lib/i18n';
 ---
 
@@ -10,14 +10,18 @@ import { en_, label } from '../lib/i18n';
 </div>
 
 <form id="login" class="sign-in card" hidden>
-  <span class="sign-in-mark" aria-hidden="true"><Cast size={30} stroke-width={1.8} /></span>
-  <h1>Cast</h1>
-  <p class="lead" data-t="signIn.lead">{en_('signIn.lead')}</p>
+  <div class="sign-in-title">
+    <span class="mark" aria-hidden="true"><Cast size={28} stroke-width={2.2} /></span>
+    <h1>Cast</h1>
+  </div>
   <!-- lets password managers save and fill the password -->
   <input type="text" name="username" autocomplete="username" value="cast" hidden />
-  <label for="password" data-t="signIn.password">{en_('signIn.password')}</label>
+  <label class="visually-hidden" for="password" data-t="signIn.password">{en_('signIn.password')}</label>
   <div class="password-row">
-    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus />
+    <span class="field">
+      <Lock size={20} stroke-width={2.2} aria-hidden="true" />
+      <input id="password" name="password" type="password" autocomplete="current-password" required autofocus />
+    </span>
     <button type="submit" class="icon-button primary" {...label('signIn.submit')}><ArrowRight /></button>
   </div>
   <label class="checkbox"><input id="stay-signed-in" type="checkbox" /> <span data-t="signIn.stay">{en_('signIn.stay')}</span></label>

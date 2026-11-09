@@ -1,24 +1,39 @@
 ---
 // Public, also for the Meta Horizon Store listing. Both languages are in the page; the CSS shows the chosen one.
-// Keep it in line with what the app, the website and the servers really do (see the READMEs).
+// The instance's operator and servers come from the environment (astro.config.mjs). Keep the text in line with what
+// the app, the website and the servers really do (see the READMEs).
+import {
+  LEGAL_URL,
+  LIVEKIT_PUBLIC_URL,
+  OPERATOR_EMAIL,
+  OPERATOR_NAME,
+  OPERATOR_URL,
+  SERVER_COUNTRY,
+  SERVER_PROVIDER,
+  SIGNALLING_VIA_CLOUDFLARE,
+} from 'astro:env/server';
 import Header from '../components/Header.astro';
 import Layout from '../layouts/Layout.astro';
 
 const updated = '09.11.2026';
-const contact = 'contact@jonasludorf.dev';
+const signalling = new URL(LIVEKIT_PUBLIC_URL.replace(/^ws/, 'http')).host;
+const country = (lang: string) => new Intl.DisplayNames([lang], { type: 'region' }).of(SERVER_COUNTRY.toUpperCase()) ?? SERVER_COUNTRY;
+const cf = SIGNALLING_VIA_CLOUDFLARE;
+const urlLabel = OPERATOR_URL && new URL(OPERATOR_URL).host;
 ---
 
 <Layout title="title.privacy" current="privacy">
   <Header title="title.privacy" />
   <main class="legal">
     <article lang="en" data-lang="en">
-      <p class="lead">This page explains which data Cast processes: the Cast app on Meta Quest headsets and the website cast.nwdl.org. Last updated: {updated}.</p>
+      <p class="lead">This page explains which data Cast processes: the Cast app on Meta Quest headsets and this website. Last updated: {updated}.</p>
 
       <h2>Who is responsible</h2>
       <address>
-        Jonas Ludorf<br />
-        E-mail: <a href={`mailto:${contact}`}>{contact}</a><br />
-        <a href="https://jonasludorf.dev/">jonasludorf.dev</a> · <a href="https://jonasludorf.dev/legal">Legal notice</a>
+        {OPERATOR_NAME}<br />
+        E-mail: <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
+        {OPERATOR_URL && <><br /><a href={OPERATOR_URL}>{urlLabel}</a></>}
+        {LEGAL_URL && <> · <a href={LEGAL_URL}>Legal notice</a></>}
       </address>
 
       <h2>What Cast does</h2>
@@ -27,9 +42,9 @@ const contact = 'contact@jonasludorf.dev';
       <h2>The app on the headset</h2>
       <ul>
         <li><strong>Standby:</strong> the app captures the headset's screen to recognise the start and stop QR codes. The images are only analysed on the headset; they are neither stored nor sent anywhere.</li>
-        <li><strong>Casting</strong> starts only with the start code or the "Start casting" button. Then the screen image, the microphone and the sound of the apps are streamed live to my streaming server and from there to signed-in viewers. Nothing is recorded or stored. A notification on the headset shows that it is casting. The cast ends with the stop code, the "Stop casting" button or from the website.</li>
+        <li><strong>Casting</strong> starts only with the start code or the start button in the app. Then the screen image, the microphone and the sound of the apps are streamed live to the streaming server and from there to signed-in viewers. Nothing is recorded or stored. A notification on the headset shows that it is casting. The cast ends with the stop code, the stop button in the app or from the website.</li>
         <li>Everything visible in the headset during a cast, and everything said near it, can be seen and heard by the viewers.</li>
-        <li><strong>Setup:</strong> each headset is set up once with a setup script. The website then stores its model, the name given during setup, a hash of its serial number (to recognise it when it is set up again), its access credentials as a hash and the time of the setup. The headset keeps its credentials in the app's private storage. I keep this data while the headset is used with Cast and delete it on request.</li>
+        <li><strong>Setup:</strong> each headset is set up once with a setup script. The website then stores its model, the name given during setup, a hash of its serial number (to recognise it when it is set up again), its access credentials as a hash and the time of the setup. The headset keeps its credentials in the app's private storage. This data is kept while the headset is used with Cast and deleted on request.</li>
         <li>The app is installed from the Meta Horizon Store; Meta's privacy policy applies to the store.</li>
       </ul>
 
@@ -46,33 +61,34 @@ const contact = 'contact@jonasludorf.dev';
       <ul>
         <li><strong>Website and sign-in:</strong> Vercel Inc. (USA); the server functions run in Frankfurt, Germany. Vercel processes connection data such as IP addresses to deliver the website.</li>
         <li><strong>List of set-up headsets:</strong> a database at Upstash, Inc. (USA), connected through Vercel.</li>
-        <li><strong>Streaming server:</strong> my server at IONOS SE (Germany). The connection to live.nwdl.org runs through Cloudflare, Inc. (USA); video and audio go directly to the server and are encrypted in transit.</li>
-        <li>Vercel, Upstash and Cloudflare process data on my behalf. For transfers to the USA they rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses.</li>
+        <li><strong>Streaming server:</strong> a server at {SERVER_PROVIDER} ({country('en')}).{cf ? ` The connection to ${signalling} runs through Cloudflare, Inc. (USA); video and audio go directly to the server` : ' Video and audio go to it directly'} and are encrypted in transit.</li>
+        <li>Vercel, Upstash{cf ? ' and Cloudflare' : ''} process data on behalf of the operator. For transfers to the USA they rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses.</li>
       </ul>
 
       <h2>Logs</h2>
       <ul>
         <li>The streaming server keeps a technical log for troubleshooting: times, the random IDs of viewers and headsets, and the IP addresses of the connections. It has a fixed maximum size; the oldest entries are overwritten automatically.</li>
-        <li>The web server in front of the streaming server logs the time, the requested address (which contains the one-hour access token) and the address of Cloudflare. These logs are deleted after five weeks at the latest.</li>
+        <li>The web server in front of the streaming server may log the time and the requested address, which contains the one-hour access token.</li>
         <li>Vercel keeps request logs according to its own retention periods.</li>
       </ul>
 
       <h2>Legal basis</h2>
-      <p>I process the data based on my legitimate interest in supporting people who use VR headsets and in running the service securely (Art. 6(1)(f) GDPR). Storing the access token, the "Stay signed in" cookie and the language in your browser is strictly necessary for the service you asked for (§ 25(2) no. 2 TDDDG).</p>
+      <p>The data is processed based on the operator's legitimate interest in supporting people who use VR headsets and in running the service securely (Art. 6(1)(f) GDPR). Storing the access token, the "Stay signed in" cookie and the language in your browser is strictly necessary for the service you asked for (§ 25(2) no. 2 TDDDG).</p>
 
       <h2>Your rights</h2>
-      <p>You have the right to access, rectification, erasure, restriction of processing and data portability, and the right to object to the processing (Art. 15–21 GDPR). Write to <a href={`mailto:${contact}`}>{contact}</a>.</p>
+      <p>You have the right to access, rectification, erasure, restriction of processing and data portability, and the right to object to the processing (Art. 15–21 GDPR). Write to <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>.</p>
       <p>You can also complain to a data protection supervisory authority, in particular in the EU country where you live or work (Art. 77 GDPR).</p>
     </article>
 
     <article lang="de" data-lang="de">
-      <p class="lead">Diese Seite erklärt, welche Daten Cast verarbeitet: die App Cast auf Meta-Quest-Headsets und die Website cast.nwdl.org. Stand: {updated}.</p>
+      <p class="lead">Diese Seite erklärt, welche Daten Cast verarbeitet: die App Cast auf Meta-Quest-Headsets und diese Website. Stand: {updated}.</p>
 
       <h2>Verantwortlich</h2>
       <address>
-        Jonas Ludorf<br />
-        E-Mail: <a href={`mailto:${contact}`}>{contact}</a><br />
-        <a href="https://jonasludorf.dev/">jonasludorf.dev</a> · <a href="https://jonasludorf.dev/legal">Rechtliches</a>
+        {OPERATOR_NAME}<br />
+        E-Mail: <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
+        {OPERATOR_URL && <><br /><a href={OPERATOR_URL}>{urlLabel}</a></>}
+        {LEGAL_URL && <> · <a href={LEGAL_URL}>Rechtliches</a></>}
       </address>
 
       <h2>Was Cast macht</h2>
@@ -81,9 +97,9 @@ const contact = 'contact@jonasludorf.dev';
       <h2>Die App auf dem Headset</h2>
       <ul>
         <li><strong>Standby:</strong> Die App nimmt den Bildschirm des Headsets auf, um die Start- und Stopp-QR-Codes zu erkennen. Die Bilder werden nur auf dem Headset ausgewertet, weder gespeichert noch irgendwohin gesendet.</li>
-        <li><strong>Casting</strong> startet nur mit dem Start-Code oder der Schaltfläche „Start casting“. Dann werden Bildschirmbild, Mikrofon und der Ton der Apps live an meinen Streaming-Server und von dort an angemeldete Zuschauer übertragen. Nichts wird aufgezeichnet oder gespeichert. Eine Benachrichtigung auf dem Headset zeigt, dass gecastet wird. Der Cast endet mit dem Stopp-Code, der Schaltfläche „Stop casting“ oder über die Website.</li>
+        <li><strong>Casting</strong> startet nur mit dem Start-Code oder der Start-Schaltfläche der App. Dann werden Bildschirmbild, Mikrofon und der Ton der Apps live an den Streaming-Server und von dort an angemeldete Zuschauer übertragen. Nichts wird aufgezeichnet oder gespeichert. Eine Benachrichtigung auf dem Headset zeigt, dass gecastet wird. Der Cast endet mit dem Stopp-Code, der Stopp-Schaltfläche der App oder über die Website.</li>
         <li>Alles, was während eines Casts im Headset zu sehen ist und in seiner Nähe gesagt wird, können die Zuschauer sehen und hören.</li>
-        <li><strong>Einrichtung:</strong> Jedes Headset wird einmal mit einem Setup-Skript eingerichtet. Die Website speichert dann sein Modell, den bei der Einrichtung vergebenen Namen, einen Hash seiner Seriennummer (um es bei einer erneuten Einrichtung wiederzuerkennen), seine Zugangsdaten als Hash und den Zeitpunkt der Einrichtung. Das Headset speichert seine Zugangsdaten im privaten Speicher der App. Ich bewahre diese Daten auf, solange das Headset mit Cast genutzt wird, und lösche sie auf Anfrage.</li>
+        <li><strong>Einrichtung:</strong> Jedes Headset wird einmal mit einem Setup-Skript eingerichtet. Die Website speichert dann sein Modell, den bei der Einrichtung vergebenen Namen, einen Hash seiner Seriennummer (um es bei einer erneuten Einrichtung wiederzuerkennen), seine Zugangsdaten als Hash und den Zeitpunkt der Einrichtung. Das Headset speichert seine Zugangsdaten im privaten Speicher der App. Diese Daten werden aufbewahrt, solange das Headset mit Cast genutzt wird, und auf Anfrage gelöscht.</li>
         <li>Die App wird aus dem Meta Horizon Store installiert; für den Store gilt die Datenschutzerklärung von Meta.</li>
       </ul>
 
@@ -100,22 +116,22 @@ const contact = 'contact@jonasludorf.dev';
       <ul>
         <li><strong>Website und Anmeldung:</strong> Vercel Inc. (USA); die Serverfunktionen laufen in Frankfurt am Main. Vercel verarbeitet Verbindungsdaten wie IP-Adressen, um die Website auszuliefern.</li>
         <li><strong>Liste der eingerichteten Headsets:</strong> eine Datenbank bei Upstash, Inc. (USA), angebunden über Vercel.</li>
-        <li><strong>Streaming-Server:</strong> mein Server bei der IONOS SE (Deutschland). Die Verbindung zu live.nwdl.org läuft über Cloudflare, Inc. (USA); Bild und Ton gehen direkt an den Server und werden verschlüsselt übertragen.</li>
-        <li>Vercel, Upstash und Cloudflare verarbeiten die Daten in meinem Auftrag. Für Übermittlungen in die USA stützen sie sich auf das EU-US Data Privacy Framework oder die EU-Standardvertragsklauseln.</li>
+        <li><strong>Streaming-Server:</strong> ein Server bei {SERVER_PROVIDER} ({country('de')}).{cf ? ` Die Verbindung zu ${signalling} läuft über Cloudflare, Inc. (USA); Bild und Ton gehen direkt an den Server` : ' Bild und Ton gehen direkt an ihn'} und werden verschlüsselt übertragen.</li>
+        <li>Vercel, Upstash{cf ? ' und Cloudflare' : ''} verarbeiten die Daten im Auftrag des Betreibers. Für Übermittlungen in die USA stützen sie sich auf das EU-US Data Privacy Framework oder die EU-Standardvertragsklauseln.</li>
       </ul>
 
       <h2>Protokolle</h2>
       <ul>
         <li>Der Streaming-Server führt zur Fehlersuche ein technisches Protokoll: Zeitpunkte, die zufälligen IDs von Zuschauern und Headsets und die IP-Adressen der Verbindungen. Es hat eine feste Höchstgröße; die ältesten Einträge werden automatisch überschrieben.</li>
-        <li>Der Webserver vor dem Streaming-Server protokolliert Zeitpunkt, aufgerufene Adresse (sie enthält das eine Stunde gültige Zugangstoken) und die Adresse von Cloudflare. Diese Protokolle werden spätestens nach fünf Wochen gelöscht.</li>
+        <li>Der Webserver vor dem Streaming-Server kann Zeitpunkt und aufgerufene Adresse protokollieren; sie enthält das eine Stunde gültige Zugangstoken.</li>
         <li>Vercel bewahrt Anfrageprotokolle nach seinen eigenen Fristen auf.</li>
       </ul>
 
       <h2>Rechtsgrundlage</h2>
-      <p>Ich verarbeite die Daten auf Grundlage meines berechtigten Interesses, Menschen bei der Nutzung von VR-Headsets zu unterstützen und den Dienst sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO). Das Speichern des Zugangstokens, des Cookies „Angemeldet bleiben“ und der Sprache im Browser ist für den von dir gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>
+      <p>Die Daten werden auf Grundlage des berechtigten Interesses des Betreibers verarbeitet, Menschen bei der Nutzung von VR-Headsets zu unterstützen und den Dienst sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO). Das Speichern des Zugangstokens, des Cookies „Angemeldet bleiben“ und der Sprache im Browser ist für den von dir gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>
 
       <h2>Deine Rechte</h2>
-      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit sowie das Recht, der Verarbeitung zu widersprechen (Art. 15–21 DSGVO). Schreib dazu an <a href={`mailto:${contact}`}>{contact}</a>.</p>
+      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit sowie das Recht, der Verarbeitung zu widersprechen (Art. 15–21 DSGVO). Schreib dazu an <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>.</p>
       <p>Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere in dem EU-Land, in dem du lebst oder arbeitest (Art. 77 DSGVO).</p>
     </article>
   </main>

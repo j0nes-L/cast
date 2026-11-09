@@ -1,9 +1,9 @@
 ---
-import { Trash } from "@lucide/astro";
+import { Calendar, Trash } from "@lucide/astro";
 import Header from "../components/Header.astro";
 import SignIn from "../components/SignIn.astro";
 import Layout from "../layouts/Layout.astro";
-import { en_, label } from "../lib/i18n";
+import { label } from "../lib/i18n";
 ---
 
 <Layout title="title.headsets" current="headsets">
@@ -12,7 +12,6 @@ import { en_, label } from "../lib/i18n";
   <div id="content" hidden>
     <Header title="title.headsets" />
     <main class="page">
-      <p class="lead" data-t="headsets.lead">{en_("headsets.lead")}</p>
       <section class="card">
         <ul id="device-list"></ul>
         <p id="list-message" class="muted" role="status"></p>
@@ -22,14 +21,15 @@ import { en_, label } from "../lib/i18n";
 
   <template id="device-template">
     <li>
+      <span class="status-dot" role="img"></span>
       <span class="name"></span>
-      <span class="state"></span>
+      <span class="date"><Calendar size={16} stroke-width={2.2} aria-hidden="true" /><time></time></span>
       <button type="button" class="icon-button danger remove" {...label("headsets.remove")}><Trash /></button>
     </li>
   </template>
 
   <script>
-    import { busy, t } from "../lib/i18n";
+    import { busy, setLabel, t } from "../lib/i18n";
     import { setupSignIn, viewerFetch, type Session } from "../lib/session";
 
     type Device = {
@@ -66,11 +66,15 @@ import { en_, label } from "../lib/i18n";
     function deviceItem(device: Device) {
       const item = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
       item.querySelector(".name")!.textContent = device.name;
-      const state = item.querySelector(".state")!;
-      state.classList.toggle("live", device.casting);
-      state.textContent = device.casting
-        ? t("headsets.casting")
-        : t("headsets.setUp", { date: formatDate(new Date(device.createdAt)) });
+      // Green: casting, yellow: set up but not casting
+      const dot = item.querySelector<HTMLElement>(".status-dot")!;
+      dot.dataset.level = device.casting ? "ok" : "warn";
+      setLabel(dot, device.casting ? "headsets.casting" : "headsets.idle");
+      const date = formatDate(new Date(device.createdAt));
+      const time = item.querySelector("time")!;
+      time.textContent = date;
+      time.dateTime = device.createdAt;
+      item.querySelector<HTMLElement>(".date")!.title = t("headsets.setUp", { date });
       const remove = item.querySelector<HTMLButtonElement>(".remove")!;
       remove.onclick = () => removeDevice(device, remove);
       return item;

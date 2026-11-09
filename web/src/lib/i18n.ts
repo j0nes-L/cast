@@ -19,7 +19,6 @@ const en = {
   'footer.privacy': 'Privacy',
   'footer.legal': 'Legal notice',
 
-  'signIn.lead': 'Live view of what the headsets see.',
   'signIn.password': 'Password',
   'signIn.stay': 'Stay signed in',
   'signIn.submit': 'Sign in',
@@ -31,7 +30,6 @@ const en = {
   'error.connectionClosed': 'The connection was closed. Please sign in again.',
 
   'live.empty': 'No headset is casting right now.',
-  'live.emptyHint': 'Hold the start code in front of a headset in standby.',
   'live.showCodes': 'Show codes',
   'live.reconnecting': 'Reconnecting…',
   'live.enableAudio': 'Enable audio',
@@ -48,10 +46,10 @@ const en = {
   'quality.poor': 'Poor connection',
   'quality.lost': 'Connection lost',
 
-  'headsets.lead': 'Headsets are set up once with the setup script (app/setup.ps1). A removed headset shows up again when it casts or is set up again.',
   'headsets.empty': 'No headset is set up yet.',
   'headsets.loadFailed': 'Could not load the headsets.',
   'headsets.casting': 'Casting',
+  'headsets.idle': 'Not casting',
   'headsets.setUp': 'Set up {date}',
   'headsets.remove': 'Remove',
   'headsets.removeConfirm': 'Remove {name} from the list? A running cast ends.',
@@ -84,7 +82,6 @@ const de: Record<Key, string> = {
   'footer.privacy': 'Datenschutz',
   'footer.legal': 'Rechtliches',
 
-  'signIn.lead': 'Live-Ansicht dessen, was die Headsets sehen.',
   'signIn.password': 'Passwort',
   'signIn.stay': 'Angemeldet bleiben',
   'signIn.submit': 'Anmelden',
@@ -96,7 +93,6 @@ const de: Record<Key, string> = {
   'error.connectionClosed': 'Die Verbindung wurde getrennt. Bitte melde dich erneut an.',
 
   'live.empty': 'Gerade castet kein Headset.',
-  'live.emptyHint': 'Halte den Start-Code vor ein Headset im Standby.',
   'live.showCodes': 'Codes anzeigen',
   'live.reconnecting': 'Verbinde neu…',
   'live.enableAudio': 'Ton aktivieren',
@@ -113,10 +109,10 @@ const de: Record<Key, string> = {
   'quality.poor': 'Schwache Verbindung',
   'quality.lost': 'Verbindung verloren',
 
-  'headsets.lead': 'Headsets werden einmal mit dem Setup-Skript (app/setup.ps1) eingerichtet. Ein entferntes Headset erscheint wieder, sobald es castet oder neu eingerichtet wird.',
   'headsets.empty': 'Noch kein Headset eingerichtet.',
   'headsets.loadFailed': 'Die Headsets konnten nicht geladen werden.',
   'headsets.casting': 'Castet',
+  'headsets.idle': 'Castet gerade nicht',
   'headsets.setUp': 'Eingerichtet am {date}',
   'headsets.remove': 'Entfernen',
   'headsets.removeConfirm': '{name} aus der Liste entfernen? Ein laufender Cast endet.',

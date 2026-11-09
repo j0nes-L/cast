@@ -37,7 +37,6 @@ data class DeviceConfig(val server: String, val deviceId: String, val deviceSecr
 
     companion object {
         private const val PREFS = "device"
-        private const val PRODUCTION_SERVER = "https://cast.nwdl.org"
 
         /** The stored credentials; takes over a cast.json pushed by the setup script first. */
         fun load(context: Context): DeviceConfig? {
@@ -60,8 +59,9 @@ data class DeviceConfig(val server: String, val deviceId: String, val deviceSecr
             runCatching {
                 val json = JSONObject(file.readText())
                 val server = json.getString("server").trimEnd('/')
-                // Release builds only talk to cast.nwdl.org, whatever the file says
-                if (BuildConfig.DEBUG || server == PRODUCTION_SERVER) {
+                // Any Cast instance the setup script names; release builds only over https. Only adb can write this
+                // folder (Android 11+), so the file comes from whoever set the headset up.
+                if (BuildConfig.DEBUG || server.startsWith("https://")) {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                         .putString("server", server)
                         .putString("deviceId", json.getString("deviceId"))

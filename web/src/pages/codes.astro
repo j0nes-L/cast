@@ -22,9 +22,9 @@ const codes = [
           <div class="slide">
             <figure class="card">
               <div class="qr" set:html={svg} />
-              <figcaption>
-                <Icon size={22} stroke-width={2} />
-                <span data-t={label}>{en_(label)}</span>
+              <figcaption data-code={label === 'codes.start' ? 'start' : 'stop'}>
+                <Icon size={32} stroke-width={2.4} aria-hidden="true" />
+                <span class="visually-hidden" data-t={label}>{en_(label)}</span>
               </figcaption>
             </figure>
           </div>
@@ -44,18 +44,18 @@ const codes = [
     const slides = document.getElementById('slides')!;
     const dots = [...document.querySelectorAll<HTMLButtonElement>('.dot')];
     const current = () => Math.round(slides.scrollLeft / slides.clientWidth);
-    // Wraps around, so both arrows always lead to the other code
-    const show = (index: number) => {
+    // Wraps around, so both arrows always lead to the other code. Keys switch at once: keyboard actions are not animated.
+    const show = (index: number, behavior: ScrollBehavior = 'smooth') => {
       const count = dots.length;
-      slides.scrollTo({ left: (((index % count) + count) % count) * slides.clientWidth, behavior: 'smooth' });
+      slides.scrollTo({ left: (((index % count) + count) % count) * slides.clientWidth, behavior });
     };
 
     document.getElementById('previous')!.onclick = () => show(current() - 1);
     document.getElementById('next')!.onclick = () => show(current() + 1);
     dots.forEach((dot, i) => (dot.onclick = () => show(i)));
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') show(current() - 1);
-      if (event.key === 'ArrowRight') show(current() + 1);
+      if (event.key === 'ArrowLeft') show(current() - 1, 'instant');
+      if (event.key === 'ArrowRight') show(current() + 1, 'instant');
     });
     slides.addEventListener('scroll', () => dots.forEach((dot, i) => dot.setAttribute('aria-current', String(i === current()))), {
       passive: true,

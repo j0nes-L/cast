@@ -1,32 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The only screen: headset name with a status circle, the state, a message and two icon buttons.
+     Same style as the website: paper white, black ink, 2 dp borders, hard shadows (Brutal.kt). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:background="@color/paper"
+    android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="32dp">
+    android:padding="48dp">
 
     <TextView
-        android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:gravity="center"
-        android:textSize="20sp" />
+        android:background="@color/ink"
+        android:fontFamily="@font/space_grotesk"
+        android:fontVariationSettings="'wght' 700"
+        android:letterSpacing="0.12"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:text="CAST"
+        android:textColor="@color/surface"
+        android:textSize="14sp" />
 
-    <Button
-        android:id="@+id/start"
-        android:layout_width="240dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start casting"
-        android:textSize="18sp" />
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/stop"
-        android:layout_width="240dp"
+        <View
+            android:id="@+id/dot"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/space_grotesk"
+            android:fontVariationSettings="'wght' 700"
+            android:letterSpacing="-0.03"
+            android:maxLines="1"
+            android:textColor="@color/ink"
+            android:textSize="40sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Stop casting"
-        android:textSize="18sp" />
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/space_grotesk"
+        android:fontVariationSettings="'wght' 600"
+        android:letterSpacing="0.1"
+        android:textAllCaps="true"
+        android:textColor="@color/ink_soft"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/space_grotesk"
+        android:textColor="@color/ink"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/primary"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="28dp"
+            android:scaleType="fitCenter"
+            android:stateListAnimator="@animator/press" />
+
+        <ImageButton
+            android:id="@+id/quit"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="24dp"
+            android:contentDescription="Quit"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="28dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_power"
+            android:stateListAnimator="@animator/press" />
+    </LinearLayout>
 </LinearLayout>

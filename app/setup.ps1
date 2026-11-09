@@ -2,12 +2,12 @@
 # It registers the headset with the cast website (setting it up again renews its credentials), copies the credentials
 # to the headset and allows the app to capture without the share dialog and to start in standby after a reboot.
 #
-#   .\setup.ps1                                  # https://cast.nwdl.org, asks for the name
-#   .\setup.ps1 -Name Empfang                    # shown as "Quest 3 - Empfang"
-#   .\setup.ps1 -Server http://localhost:4321    # local dev stack
+#   .\setup.ps1 -Server https://cast.example.org                 # the website of the Cast instance; asks for the name
+#   .\setup.ps1 -Server https://cast.example.org -Name Empfang   # shown as "Quest 3 - Empfang"
+#   .\setup.ps1 -Server http://localhost:4321                    # local dev stack
 #
 # Cast has to be installed already (from the store, or with adb install for development).
-param([string]$Server = "https://cast.nwdl.org", [string]$Name)
+param([Parameter(Mandatory = $true)][string]$Server, [string]$Name)
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # Windows PowerShell 5.1 defaults to older TLS
 $package = "dev.jonasludorf.cast"

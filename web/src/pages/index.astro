@@ -1,5 +1,5 @@
 ---
-import { Cast, CircleStop, Focus, LayoutGrid, Maximize, Minimize, Volume2, VolumeX } from '@lucide/astro';
+import { Cast, CircleStop, Focus, LayoutGrid, Maximize, Minimize, QrCode, Volume2, VolumeX } from '@lucide/astro';
 import Header from '../components/Header.astro';
 import SignIn from '../components/SignIn.astro';
 import Layout from '../layouts/Layout.astro';
@@ -12,10 +12,9 @@ import { en_, label } from '../lib/i18n';
     <main id="live" hidden>
       <Header title="title.live" />
       <section id="empty" class="card empty">
-        <Cast size={40} stroke-width={1.5} />
+        <span class="mark" aria-hidden="true"><Cast size={36} stroke-width={2} /></span>
         <p class="empty-title" data-t="live.empty">{en_('live.empty')}</p>
-        <p class="muted" data-t="live.emptyHint">{en_('live.emptyHint')}</p>
-        <a class="cta" href="/codes" data-t="live.showCodes">{en_('live.showCodes')}</a>
+        <a class="icon-button primary" href="/codes" {...label('live.showCodes')}><QrCode /></a>
       </section>
       <div id="tiles"></div>
     </main>
@@ -29,7 +28,7 @@ import { en_, label } from '../lib/i18n';
         </div>
         <footer>
           <span class="name"></span>
-          <span class="quality"></span>
+          <span class="quality status-dot" role="img"></span>
           <span class="actions">
             <button type="button" class="icon-button primary enable-audio" hidden {...label('live.enableAudio')}><Volume2 /></button>
             <button type="button" class="icon-button mute" aria-pressed="false" {...label('live.mute')}>
@@ -77,6 +76,12 @@ import { en_, label } from '../lib/i18n';
         poor: 'quality.poor',
         lost: 'quality.lost',
       };
+      const LEVEL: Record<string, string> = { excellent: 'ok', good: 'ok', poor: 'warn', lost: 'bad' };
+      // Status line in the page head: a colored circle and the message
+      const setStatus = (text: string, level = 'bad') => {
+        statusText.textContent = text;
+        statusText.dataset.level = level;
+      };
       const tiles = new Map<string, Tile>();
       let manualFocus: string | null = null;
       let muted = false;
@@ -91,7 +96,38 @@ import { en_, label } from '../lib/i18n';
         return tiles.size === 1 ? [...tiles.keys()][0] : null;
       }
 
-      // Applies focus and audio rules: only the focused tile is visible large and audible.
+      // Tile size as in Discord: the column count that gives the largest 16:9 tiles in the free area; the last row is
+      // centered (CSS). With a focused tile it takes the area and the others shrink to a strip below it.
+      const GAP = 24; // 1.5rem, the gap in #tiles
+      const BAR = 66; // tile footer under the video
+      const THUMB = 220 * (9 / 16) + BAR + GAP; // a strip of small tiles
+      const MIN = 300; // below this the tiles may not shrink to fit the height: the page scrolls instead (phones)
+      function layout() {
+        const width = tilesEl.clientWidth;
+        // Free height: below the tiles come the footer and the frame's padding (room for the side bar on phones)
+        const footer = document.querySelector<HTMLElement>('.site-footer')!;
+        const below = footer.offsetHeight + parseFloat(getComputedStyle(footer.parentElement!).paddingBottom);
+        const height = Math.max(240, innerHeight - tilesEl.getBoundingClientRect().top - below);
+        const toWidth = (h: number) => ((h - BAR) * 16) / 9;
+        let best = 0;
+        if (focused()) {
+          best = Math.min(width, toWidth(height - (tiles.size > 1 ? THUMB : 0)));
+        } else {
+          for (let cols = 1; cols <= tiles.size; cols++) {
+            const rows = Math.ceil(tiles.size / cols);
+            best = Math.max(best, Math.min((width - GAP * (cols - 1)) / cols, toWidth((height - GAP * (rows - 1)) / rows)));
+          }
+        }
+        if (best < Math.min(MIN, width)) {
+          const cols = Math.max(1, Math.floor((width + GAP) / (MIN + GAP)));
+          best = (width - GAP * (cols - 1)) / cols;
+        }
+        tilesEl.style.setProperty('--tile-w', `${Math.floor(best)}px`);
+        tilesEl.style.setProperty('--stage-h', `${Math.floor(height)}px`); // centers the grid in the free area
+      }
+      new ResizeObserver(layout).observe(tilesEl);
+
+      // Applies focus and audio rules: only the focused tile is large and audible.
       function render() {
         const focus = focused();
         if (focus !== mutedFor) {
@@ -103,7 +139,7 @@ import { en_, label } from '../lib/i18n';
         for (const [identity, tile] of tiles) {
           const isFocus = identity === focus;
           tile.el.classList.toggle('focused', isFocus);
-          tile.el.hidden = focus !== null && !isFocus;
+          tile.el.classList.toggle('thumb', focus !== null && !isFocus);
           tile.focus.hidden = tiles.size === 1;
           setLabel(tile.focus, isFocus ? 'live.showAll' : 'live.focus');
           tile.focus.setAttribute('aria-pressed', String(isFocus));
@@ -115,6 +151,7 @@ import { en_, label } from '../lib/i18n';
           tile.mute.setAttribute('aria-pressed', String(muted));
           for (const pub of tile.participant.audioTrackPublications.values()) pub.setSubscribed(isFocus && !muted);
         }
+        layout();
       }
 
       function addTile(participant: RemoteParticipant) {
@@ -141,6 +178,12 @@ import { en_, label } from '../lib/i18n';
           manualFocus = focused() === identity ? null : identity;
           render();
         };
+        // A small tile in the strip takes the focus when clicked, as in Discord
+        el.addEventListener('click', (event) => {
+          if (!el.classList.contains('thumb') || (event.target as Element).closest('button')) return;
+          manualFocus = identity;
+          render();
+        });
         tile.enableAudio.onclick = () => room.startAudio();
         tile.mute.onclick = () => {
           muted = !muted;
@@ -166,8 +209,10 @@ import { en_, label } from '../lib/i18n';
         const tile = tiles.get(participant.identity);
         if (!tile) return;
         const key = QUALITY[participant.connectionQuality];
-        tile.quality.textContent = key ? t(key) : '';
-        tile.quality.dataset.level = participant.connectionQuality;
+        // A colored circle; the words are its tooltip and accessible name
+        tile.quality.hidden = !key;
+        if (key) setLabel(tile.quality, key);
+        tile.quality.dataset.level = LEVEL[participant.connectionQuality] ?? '';
       }
 
       room
@@ -198,8 +243,8 @@ import { en_, label } from '../lib/i18n';
         })
         .on(RoomEvent.ConnectionQualityChanged, (_quality, p) => showQuality(p as RemoteParticipant))
         .on(RoomEvent.AudioPlaybackStatusChanged, render)
-        .on(RoomEvent.Reconnecting, () => (statusText.textContent = t('live.reconnecting')))
-        .on(RoomEvent.Reconnected, () => (statusText.textContent = ''))
+        .on(RoomEvent.Reconnecting, () => setStatus(t('live.reconnecting'), 'warn'))
+        .on(RoomEvent.Reconnected, () => setStatus(''))
         .on(RoomEvent.Disconnected, (reason) => {
           // Our own disconnect: sign-out handles it, and when leaving the page the next page takes over
           if (reason === DisconnectReason.CLIENT_INITIATED) return;
@@ -220,7 +265,7 @@ import { en_, label } from '../lib/i18n';
         const current = session;
         const res = await busy(button, () => viewerFetch(current, '/api/cast/stop', { deviceId }).catch(() => null));
         if (res?.ok) return;
-        statusText.textContent = res?.status === 401 ? t('error.expired') : t('live.endFailed', { name });
+        setStatus(res?.status === 401 ? t('error.expired') : t('live.endFailed', { name }));
       }
 
       const signInUi = setupSignIn(

@@ -1,5 +1,5 @@
 ---
-// Page title; #status shows connection messages.
+// Page title; #status shows connection messages with a colored circle (data-level: ok, warn, bad).
 import { en_, type Key } from '../lib/i18n';
 
 interface Props {
@@ -13,6 +13,6 @@ const { title } = Astro.props;
     <a class="eyebrow" href="/">Cast</a>
     <h1 data-t={title}>{en_(title)}</h1>
   </div>
-  <span id="status" role="status"></span>
+  <span id="status" class="status" role="status"></span>
   <slot />
 </header>

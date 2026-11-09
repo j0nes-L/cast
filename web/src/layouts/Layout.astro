@@ -1,10 +1,11 @@
 ---
-// Shared page frame: fonts, side bar, footer and the language (see lib/i18n.ts).
-import '@fontsource-variable/inter';
-import '@fontsource/playfair-display/700.css';
+// Shared page frame: font, side bar, footer and the language (see lib/i18n.ts).
+import '@fontsource-variable/space-grotesk';
 import '../styles/cast.css';
+import { CircleUser, Scale, ShieldCheck } from '@lucide/astro';
+import { LEGAL_URL, OPERATOR_NAME, OPERATOR_URL } from 'astro:env/server';
 import Sidebar from '../components/Sidebar.astro';
-import { en_, strings, type Key } from '../lib/i18n';
+import { en_, label, strings, type Key } from '../lib/i18n';
 
 interface Props {
   title: Key;
@@ -35,9 +36,17 @@ const { title, current } = Astro.props;
     <div class="frame">
       <slot />
       <footer class="site-footer">
-        <a href="/privacy" data-t="footer.privacy">{en_('footer.privacy')}</a>
-        <a href="https://jonasludorf.dev/legal" data-t="footer.legal">{en_('footer.legal')}</a>
-        <a href="https://jonasludorf.dev/">Jonas Ludorf</a>
+        <a class="icon-link" href="/privacy" {...label('footer.privacy')}><ShieldCheck stroke-width={2} /></a>
+        {LEGAL_URL && <a class="icon-link" href={LEGAL_URL} {...label('footer.legal')}><Scale stroke-width={2} /></a>}
+        {
+          OPERATOR_URL ? (
+            <a class="icon-link" href={OPERATOR_URL} aria-label={OPERATOR_NAME} title={OPERATOR_NAME}>
+              <CircleUser stroke-width={2} />
+            </a>
+          ) : (
+            <span class="operator">{OPERATOR_NAME}</span>
+          )
+        }
       </footer>
     </div>
 
