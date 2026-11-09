@@ -17,7 +17,7 @@ export function deviceCode(): string {
 }
 
 const cleanText = (value: unknown, max: number) =>
-  typeof value === 'string' ? value.replace(/[^\p{L}\p{N} ._-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, max) : '';
+  typeof value === 'string' ? value.replace(/[^\p{L}\p{N} '._-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, max) : '';
 
 /**
  * "<model> - <label>", e.g. "Quest 3 - Empfang": the model comes from the headset, the label is typed in the setup

@@ -48,6 +48,7 @@ test('headset IDs are readable random codes', () => {
 test('headset names: model plus the typed label', () => {
   assert.equal(deviceName('Quest 3', 'Empfang'), 'Quest 3 - Empfang');
   assert.equal(deviceName('Quest 3', '  Raum   Süd 2 '), 'Quest 3 - Raum Süd 2');
+  assert.equal(deviceName('Quest 3', "Jonas' Brille"), "Quest 3 - Jonas' Brille");
   assert.equal(deviceName('Quest 3S<script>', '<b>Lab</b>'), 'Quest 3Sscript - bLabb');
   assert.equal(deviceName(undefined, 'Lab'), 'Quest - Lab');
   assert.equal(deviceName('x'.repeat(100), 'y'.repeat(100)), `${'x'.repeat(24)} - ${'y'.repeat(32)}`);
