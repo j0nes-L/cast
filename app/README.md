@@ -40,6 +40,23 @@ JAVA_HOME="C:/Program Files/Unity/Hub/Editor/6000.3.10f1/Editor/Data/PlaybackEng
 adb install -r build/outputs/apk/debug/cast-debug.apk
 ```
 
+### Release build (Meta Horizon Store)
+
+```sh
+JAVA_HOME=".../OpenJDK" ./gradlew assembleRelease   # build/outputs/apk/release/cast-release.apk
+```
+
+It is signed with the release key from `keystore.properties` (not committed):
+
+```properties
+storeFile=C:/Users/jludo/.android/nwdl-cast-release.jks
+storePassword=...
+keyAlias=nwdl-cast
+keyPassword=...
+```
+
+Every store update must be signed with this same key, so keep the `.jks` file and its password backed up (e.g. in Vaultwarden). Without `keystore.properties` the release APK stays unsigned. Raise `versionCode` in `build.gradle.kts` before each upload. A store build replaces a debug build only after `adb uninstall org.nwdl.cast`, because the signatures differ.
+
 ## Local testing over USB
 
 Start the local stack (`server/livekit-dev.ps1`, `npm run dev` in `web/`) and run `.\setup.ps1 -Server http://localhost:4321`. It forwards the website and LiveKit signalling to the headset with `adb reverse`; media goes directly over the network, so the headset must be in the same network as the PC. The forwarding is lost when the headset reconnects; run the script again or `adb reverse tcp:4321 tcp:4321` and `adb reverse tcp:7880 tcp:7880`.

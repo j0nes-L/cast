@@ -1,7 +1,12 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application") version "8.13.2"
     id("org.jetbrains.kotlin.android") version "2.2.20"
 }
+
+// Release signing key, outside the repo (see README). Without it the release APK stays unsigned.
+val keystore = Properties().apply { file("keystore.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
 
 android {
     namespace = "org.nwdl.cast"
@@ -22,6 +27,16 @@ android {
         debug {
             // Local dev stack runs on plain http/ws
             manifestPlaceholders["usesCleartextTraffic"] = "true"
+        }
+        release {
+            if (!keystore.isEmpty) {
+                signingConfig = signingConfigs.create("release") {
+                    storeFile = file(keystore.getProperty("storeFile"))
+                    storePassword = keystore.getProperty("storePassword")
+                    keyAlias = keystore.getProperty("keyAlias")
+                    keyPassword = keystore.getProperty("keyPassword")
+                }
+            }
         }
     }
 
