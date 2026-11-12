@@ -592,12 +592,15 @@ html:not([lang='de']) .flag-en {
   padding: 0.9rem 0;
   margin: 0;
 }
+/* An action area, not a card: dashed outline on the paper, set apart from the list below */
 .page > .pair {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem 1rem;
+  margin-bottom: 1.25rem;
   padding: 1rem 1.25rem;
+  border: 2px dashed var(--ink);
 }
 .pair-status {
   display: inline-flex;
