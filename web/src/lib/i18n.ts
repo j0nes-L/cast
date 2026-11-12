@@ -28,7 +28,7 @@ const en = {
   'error.connectionClosed': 'The connection was closed. Please sign in again.',
 
   'live.empty': 'No headset is casting right now.',
-  'live.emptyHint': 'Open Cast on a headset and press ▶.',
+  'live.emptyHint': 'Open Cast on a headset and press ▶',
   'live.reconnecting': 'Reconnecting…',
   'live.enableAudio': 'Enable audio',
   'live.mute': 'Mute',
@@ -98,7 +98,7 @@ const de: Record<Key, string> = {
   'error.connectionClosed': 'Die Verbindung wurde getrennt. Bitte melde dich erneut an.',
 
   'live.empty': 'Gerade castet kein Headset.',
-  'live.emptyHint': 'Öffne Cast auf einem Headset und drücke ▶.',
+  'live.emptyHint': 'Öffne Cast auf einem Headset und drücke ▶',
   'live.reconnecting': 'Verbinde neu…',
   'live.enableAudio': 'Ton aktivieren',
   'live.mute': 'Stummschalten',
