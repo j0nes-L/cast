@@ -30,7 +30,6 @@ import { en_, label } from '../lib/i18n';
           <span class="name"></span>
           <span class="quality status-dot" role="img"></span>
           <span class="actions">
-            <button type="button" class="icon-button primary enable-audio" hidden {...label('live.enableAudio')}><Volume2 /></button>
             <button type="button" class="icon-button mute" aria-pressed="false" {...label('live.mute')}>
               <Volume2 class="when-off" /><VolumeX class="when-on" />
             </button>
@@ -65,7 +64,6 @@ import { en_, label } from '../lib/i18n';
         quality: HTMLElement;
         focus: HTMLButtonElement;
         mute: HTMLButtonElement;
-        enableAudio: HTMLButtonElement;
         fullscreen: HTMLButtonElement;
         end: HTMLButtonElement;
       };
@@ -144,11 +142,13 @@ import { en_, label } from '../lib/i18n';
           setLabel(tile.focus, isFocus ? 'live.showAll' : 'live.focus');
           tile.focus.setAttribute('aria-pressed', String(isFocus));
           tile.mute.hidden = !isFocus;
-          // Browsers block sound until the page was clicked, e.g. after a reload with a remembered sign-in
-          tile.enableAudio.hidden = !isFocus || muted || room.canPlaybackAudio;
+          // Browsers block sound until the page was clicked, e.g. after a reload with a remembered sign-in: then the
+          // sound button shows "off", nudges and turns the sound on
+          const blocked = !muted && !room.canPlaybackAudio;
+          tile.mute.classList.toggle('blocked', blocked);
           tile.fullscreen.hidden = !isFocus;
-          setLabel(tile.mute, muted ? 'live.unmute' : 'live.mute');
-          tile.mute.setAttribute('aria-pressed', String(muted));
+          setLabel(tile.mute, blocked ? 'live.enableAudio' : muted ? 'live.unmute' : 'live.mute');
+          tile.mute.setAttribute('aria-pressed', String(muted || blocked));
           for (const pub of tile.participant.audioTrackPublications.values()) pub.setSubscribed(isFocus && !muted);
         }
         layout();
@@ -166,13 +166,13 @@ import { en_, label } from '../lib/i18n';
           quality: part('.quality'),
           focus: part('.focus'),
           mute: part('.mute'),
-          enableAudio: part('.enable-audio'),
           fullscreen: part('.fullscreen'),
           end: part('.end'),
         };
         const deviceId = identity.slice('device-'.length);
         const name = participant.name || deviceId;
         part('.name').textContent = name;
+        part<HTMLElement>('.name').title = name; // the full name when it is shortened
         tile.end.onclick = () => endCast(deviceId, name, tile.end);
         tile.focus.onclick = () => {
           manualFocus = focused() === identity ? null : identity;
@@ -184,12 +184,20 @@ import { en_, label } from '../lib/i18n';
           manualFocus = identity;
           render();
         });
-        tile.enableAudio.onclick = () => room.startAudio();
         tile.mute.onclick = () => {
-          muted = !muted;
+          if (room.canPlaybackAudio) muted = !muted;
+          else {
+            muted = false;
+            room.startAudio(); // allowed now: this is a click on the page
+          }
           render();
         };
-        tile.fullscreen.onclick = () => (document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen());
+        tile.fullscreen.onclick = () => {
+          if (document.fullscreenElement) return void document.exitFullscreen();
+          // Holds the focus, and with it the sound and the buttons, when another headset starts casting
+          manualFocus = identity;
+          el.requestFullscreen();
+        };
         // Loading circle until the picture runs, and again while it stalls
         tile.video.addEventListener('playing', () => el.classList.add('playing'));
         tile.video.addEventListener('waiting', () => el.classList.remove('playing'));
