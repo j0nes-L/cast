@@ -1,5 +1,5 @@
 ---
-import { Calendar, Trash } from "@lucide/astro";
+import { Calendar, Trash, Usb } from "@lucide/astro";
 import Header from "../components/Header.astro";
 import SignIn from "../components/SignIn.astro";
 import Layout from "../layouts/Layout.astro";
@@ -12,6 +12,12 @@ import { label } from "../lib/i18n";
   <div id="content" hidden>
     <Header title="title.headsets" />
     <main class="page">
+      <!-- Set up a headset connected over USB, right here (WebUSB, Chrome and Edge) -->
+      <section class="card pair">
+        <button id="pair" type="button" class="icon-button primary" disabled {...label("pair.setUp")}><Usb /></button>
+        <span id="pair-status" class="pair-status" role="status"></span>
+        <button id="pair-allow" type="button" class="link-button" hidden data-t="pair.allow">USB</button>
+      </section>
       <section class="card">
         <ul id="device-list"></ul>
         <p id="list-message" class="muted" role="status"></p>
@@ -29,7 +35,11 @@ import { label } from "../lib/i18n";
   </template>
 
   <script>
+    import { Adb, AdbDaemonTransport } from "@yume-chan/adb";
+    import AdbWebCredentialStore from "@yume-chan/adb-credential-web";
+    import { AdbDaemonWebUsbDevice, AdbDaemonWebUsbDeviceManager } from "@yume-chan/adb-daemon-webusb";
     import { busy, setLabel, t } from "../lib/i18n";
+    import { AppMissingError, setUpHeadset, type Credentials } from "../lib/pair";
     import { setupSignIn, viewerFetch, type Session } from "../lib/session";
 
     type Device = {
@@ -79,6 +89,70 @@ import { label } from "../lib/i18n";
       remove.onclick = () => removeDevice(device, remove);
       return item;
     }
+
+    // ---- Set up over USB. The browser lists only headsets allowed once ("Allow USB access"); from then on it notices
+    // them plugging in and out, and the button follows.
+    const pairButton = document.getElementById("pair") as HTMLButtonElement;
+    const pairStatus = document.getElementById("pair-status")!;
+    const pairAllow = document.getElementById("pair-allow") as HTMLButtonElement;
+    const usb = AdbDaemonWebUsbDeviceManager.BROWSER;
+    const META = { filters: [{ vendorId: 0x2833 }] }; // Meta Quest
+    let headset: AdbDaemonWebUsbDevice | undefined;
+
+    function showPair(text?: string, level?: string) {
+      pairButton.disabled = !headset;
+      pairAllow.hidden = !usb || !!headset;
+      pairStatus.textContent =
+        text ?? (!usb ? t("pair.unsupported") : headset ? t("pair.connected", { model: headset.name }) : t("pair.none"));
+      pairStatus.dataset.level = level ?? (headset ? "ok" : "");
+    }
+    if (usb) {
+      usb.trackDevices(META).then((observer) => {
+        const update = () => {
+          headset = observer.current[0];
+          showPair();
+        };
+        observer.onListChange(update);
+        update();
+      });
+      pairAllow.onclick = () => usb.requestDevice(META).catch(() => undefined);
+    }
+    showPair();
+
+    async function register(serial: string, model: string): Promise<Credentials> {
+      const name = prompt(t("pair.name", { model }));
+      if (!name?.trim()) throw new Error(t("pair.cancelled"));
+      const res = await viewerFetch(session!, "/api/devices", { serial, model, name });
+      if (!res.ok) throw new Error(res.status === 401 ? t("error.expired") : t("pair.registerFailed"));
+      return res.json();
+    }
+
+    pairButton.onclick = () =>
+      busy(pairButton, async () => {
+        if (!headset || !session) return;
+        showPair(t("pair.allowDebugging"), "warn");
+        let adb: Adb | undefined;
+        try {
+          const connection = await headset.connect();
+          const credentialStore = new AdbWebCredentialStore("Cast");
+          adb = new Adb(await AdbDaemonTransport.authenticate({ serial: headset.serial, connection, credentialStore }));
+          const { name } = await setUpHeadset(adb, headset.serial, location.origin, register);
+          showPair(t("pair.done", { name }), "ok");
+          await loadDevices();
+        } catch (err) {
+          const text =
+            err instanceof AdbDaemonWebUsbDevice.DeviceBusyError
+              ? t("pair.busyUsb")
+              : err instanceof AppMissingError
+                ? t("pair.noApp")
+                : err instanceof Error
+                  ? err.message
+                  : String(err);
+          showPair(text, "bad");
+        } finally {
+          await adb?.close().catch(() => undefined);
+        }
+      });
 
     // Only the list forgets it: the headset keeps its credentials and shows up again when it casts.
     async function removeDevice(device: Device, button: HTMLButtonElement) {

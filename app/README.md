@@ -12,7 +12,11 @@ The panel has the website's look: the headset's name with a status circle (red o
 
 ## Setup (once per headset)
 
-The headset needs developer mode and a USB connection to a Windows PC with adb. Install Cast (store, or `adb install` for development), then:
+The headset needs developer mode and a USB connection. Install Cast (store, or `adb install` for development), then set it up in one of two ways.
+
+**On the website** (Chrome or Edge, any computer): sign in, open `/headsets`, connect the headset and press the USB button. The first time per headset, "Allow USB access" lets the browser see it, and the headset asks to allow USB debugging (put it on). The browser cannot use the headset while an adb server runs on the same computer: close Android Studio or Unity, or run `adb kill-server`. The website does the same as the script below.
+
+**With the script** (Windows PC with adb):
 
 ```powershell
 .\setup.ps1 -Server https://cast.example.org                 # asks for the name

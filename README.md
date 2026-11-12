@@ -14,7 +14,7 @@ The headset app and the browser both connect to the instance's LiveKit server. T
 
 1. **Streaming server:** run `server/setup.sh --domain live.example.org --turn-domain turn.example.org` on a Linux host with Docker, then do what it lists (DNS, HTTPS site, firewall). Details: [server/README.md](server/README.md).
 2. **Website:** a new Vercel project from this repo with `web` as root directory, the variables below (the LiveKit ones are in the server's `vercel.env`) and the Upstash Redis integration, then the domain, e.g. `cast.example.org`.
-3. **Headsets:** install Cast, then once per headset `app\setup.ps1 -Server https://cast.example.org -Name <name>`. Details: [app/README.md](app/README.md).
+3. **Headsets:** install Cast, connect the headset over USB and set it up on the website's `/headsets` (Chrome or Edge), or run `app\setup.ps1 -Server https://cast.example.org -Name <name>`. Details: [app/README.md](app/README.md).
 
 The running instance: website `cast.nwdl.org`, streaming server `live.nwdl.org` / `turn.nwdl.org` on `server.nwdl.org`.
 
@@ -23,7 +23,7 @@ The running instance: website `cast.nwdl.org`, streaming server `live.nwdl.org` 
 | Page | |
 |---|---|
 | `/` | Live view, one tile per casting headset. Only the focused tile (or the only one) plays sound. Icon buttons per tile: focus, mute, fullscreen, end cast; a circle shows the connection (green good, yellow poor, red lost). |
-| `/headsets` | Registered headsets: green circle casting, yellow not casting, the date of setup. Removing takes a headset off the list and ends its cast; its credentials stay valid, so it shows up again when it casts or is set up again. |
+| `/headsets` | Set up a headset connected over USB, right in the browser (WebUSB with Tango ADB, `src/lib/pair.ts`; Chrome or Edge). Registered headsets: green circle casting, yellow not casting, the date of setup. Removing takes a headset off the list and ends its cast; its credentials stay valid, so it shows up again when it casts or is set up again. |
 | `/codes` | The QR codes that start and stop casting when held in front of a headset in standby, one at a time and as large as the screen allows: swipe, or the arrows and arrow keys (no sign-in) |
 | `/privacy` | Privacy policy in English and German with the instance's operator and servers (no sign-in; also linked from the Meta Horizon Store) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |

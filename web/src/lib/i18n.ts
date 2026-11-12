@@ -60,6 +60,19 @@ const en = {
   'codes.previous': 'Previous code',
   'codes.next': 'Next code',
 
+  'pair.setUp': 'Set up the connected headset',
+  'pair.allow': 'Allow USB access to a headset',
+  'pair.unsupported': 'Setting up over USB needs Chrome or Edge.',
+  'pair.none': 'No headset connected over USB.',
+  'pair.connected': '{model} connected over USB.',
+  'pair.name': 'Name of this headset (shown as "{model} - name"):',
+  'pair.cancelled': 'Setup cancelled.',
+  'pair.registerFailed': 'The headset could not be registered.',
+  'pair.allowDebugging': 'If the headset asks, put it on and allow USB debugging.',
+  'pair.done': '{name} is set up and in standby.',
+  'pair.busyUsb': 'Another program is using the headset. Close it, or run "adb kill-server".',
+  'pair.noApp': 'Install Cast on the headset first.',
+
   'common.loading': 'Loading…',
 };
 
@@ -122,6 +135,19 @@ const de: Record<Key, string> = {
   'codes.stop': 'Casting stoppen',
   'codes.previous': 'Vorheriger Code',
   'codes.next': 'Nächster Code',
+
+  'pair.setUp': 'Angeschlossenes Headset einrichten',
+  'pair.allow': 'USB-Zugriff auf ein Headset erlauben',
+  'pair.unsupported': 'Einrichten per USB braucht Chrome oder Edge.',
+  'pair.none': 'Kein Headset per USB angeschlossen.',
+  'pair.connected': '{model} per USB angeschlossen.',
+  'pair.name': 'Name des Headsets (angezeigt als „{model} - Name“):',
+  'pair.cancelled': 'Einrichtung abgebrochen.',
+  'pair.registerFailed': 'Das Headset konnte nicht registriert werden.',
+  'pair.allowDebugging': 'Falls das Headset fragt: aufsetzen und USB-Debugging erlauben.',
+  'pair.done': '{name} ist eingerichtet und im Standby.',
+  'pair.busyUsb': 'Ein anderes Programm benutzt das Headset. Schließe es oder führe „adb kill-server“ aus.',
+  'pair.noApp': 'Installiere zuerst Cast auf dem Headset.',
 
   'common.loading': 'Lädt…',
 };
