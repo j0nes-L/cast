@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import dev.jonasludorf.cast.CastSession.State
 import kotlinx.coroutines.launch
+import java.net.URL
 
 /** One button starts and stops casting. */
 class MainActivity : ComponentActivity() {
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var message: TextView
     private lateinit var buttons: View
     private lateinit var primary: ImageButton
+    private lateinit var instance: TextView
     // A message from the consent or permission flow, shown until the state changes
     private var localMessage: String? = null
 
@@ -62,6 +64,7 @@ class MainActivity : ComponentActivity() {
         message = findViewById(R.id.message)
         buttons = findViewById(R.id.buttons)
         primary = findViewById(R.id.primary)
+        instance = findViewById(R.id.instance)
         primary.setOnClickListener {
             if (CastSession.status.value.state == State.Off) startCasting() else CastSession.stopCasting()
         }
@@ -77,6 +80,8 @@ class MainActivity : ComponentActivity() {
     private fun render() {
         val config = DeviceConfig.load(this)
         buttons.visibility = if (config != null) View.VISIBLE else View.GONE
+        instance.text = config?.let { URL(it.server).authority }
+        instance.visibility = if (config != null) View.VISIBLE else View.GONE
         if (config == null) {
             show(R.color.bad, "Not set up", null, NOT_SET_UP)
             return
