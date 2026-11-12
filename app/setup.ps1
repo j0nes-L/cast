@@ -1,6 +1,6 @@
 # One-time setup of a headset for Cast, on a PC with the headset connected over USB (developer mode).
 # It registers the headset with the cast website (setting it up again renews its credentials), copies the credentials
-# to the headset and allows the app to capture without the share dialog and to start in standby after a reboot.
+# to the headset and allows the app to capture without the share dialog. Opening the app then starts casting.
 #
 #   .\setup.ps1 -Server https://cast.example.org                 # the website of the Cast instance; asks for the name
 #   .\setup.ps1 -Server https://cast.example.org -Name Empfang   # shown as "Quest 3 - Empfang"
@@ -66,6 +66,5 @@ if ($uri.Host -eq "localhost") {
     Adb reverse tcp:7880 tcp:7880 | Out-Null                       # local LiveKit signalling
 }
 
-Adb shell am force-stop $package
-Adb shell am start -n "$package/.MainActivity" | Out-Null
-Write-Host "Set up as '$($device.name)'. Cast is in standby now and after every reboot."
+Adb shell am force-stop $package # a running cast ends; the next start uses the new credentials
+Write-Host "Set up as '$($device.name)'. Opening Cast on the headset starts casting."

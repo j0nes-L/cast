@@ -2,13 +2,13 @@
 
 Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphone and app sound, to the website of a Cast instance; the setup script decides which. Other apps need no integration.
 
-The panel has the website's look: the headset's name with a status circle (red off, yellow standby, green live) and icon buttons: ▶ start casting, ■ stop casting, power: quit, cast icon: start standby.
+The panel has the website's look: the headset's name with a status circle (red off, yellow starting, green live) and one button: ▶ start casting, ■ stop casting. It lifts when pointed at and sinks in when pressed.
 
 ## How it works
 
-- **Standby:** opening the app starts a local screen capture (nothing is sent) and looks for QR codes in it, also while another app is in front. After a reboot the app returns to standby by itself.
-- **Casting:** holding the start code from the website's `/codes` in front of the headset, or pressing ▶, publishes the capture to the website. The stop code, ■ or "End cast" on the website go back to standby.
-- **Quit** (power) stops everything, also after reboots, until the app is opened again.
+- **Opening Cast starts casting**: the shortest way there. Pin Cast to the Horizon OS taskbar and it is one click. Horizon OS has no quick settings for apps, so there is no shorter way.
+- The screen is captured only while casting, so the headset shows "Sharing entire view" only then. ■, "End cast" on the website or the end of the system's capture stop it; opening Cast again starts again.
+- Casting goes on while other apps are in front; the panel can be closed.
 
 ## Setup (once per headset)
 

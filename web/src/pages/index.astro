@@ -1,5 +1,5 @@
 ---
-import { Cast, CircleStop, Focus, LayoutGrid, Maximize, Minimize, QrCode, Volume2, VolumeX } from '@lucide/astro';
+import { Cast, CircleStop, Focus, LayoutGrid, Maximize, Minimize, Volume2, VolumeX } from '@lucide/astro';
 import Header from '../components/Header.astro';
 import SignIn from '../components/SignIn.astro';
 import Layout from '../layouts/Layout.astro';
@@ -14,7 +14,7 @@ import { en_, label } from '../lib/i18n';
       <section id="empty" class="card empty">
         <span class="mark" aria-hidden="true"><Cast size={36} stroke-width={2} /></span>
         <p class="empty-title" data-t="live.empty">{en_('live.empty')}</p>
-        <a class="icon-button primary" href="/codes" {...label('live.showCodes')}><QrCode /></a>
+        <p class="muted" data-t="live.emptyHint">{en_('live.emptyHint')}</p>
       </section>
       <div id="tiles"></div>
     </main>

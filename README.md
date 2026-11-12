@@ -24,7 +24,6 @@ The running instance: website `cast.nwdl.org`, streaming server `live.nwdl.org` 
 |---|---|
 | `/` | Live view, one tile per casting headset. Only the focused tile (or the only one) plays sound. Icon buttons per tile: focus, mute, fullscreen, end cast; a circle shows the connection (green good, yellow poor, red lost). |
 | `/headsets` | Set up a headset connected over USB, right in the browser (WebUSB with Tango ADB, `src/lib/pair.ts`; Chrome or Edge). Registered headsets: green circle casting, yellow not casting, the date of setup. Removing takes a headset off the list and ends its cast; its credentials stay valid, so it shows up again when it casts or is set up again. |
-| `/codes` | The QR codes that start and stop casting when held in front of a headset in standby, one at a time and as large as the screen allows: swipe, or the arrows and arrow keys (no sign-in) |
 | `/privacy` | Privacy policy in English and German with the instance's operator and servers (no sign-in; also linked from the Meta Horizon Store) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |
 

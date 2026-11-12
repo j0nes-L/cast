@@ -12,9 +12,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
-    <!-- Standby again after a reboot. Horizon OS (v207) lets the boot receiver open the panel without
-         SYSTEM_ALERT_WINDOW, which the Meta Horizon Store does not allow. -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:label="Cast"
@@ -45,13 +42,5 @@
             android:name=".CastService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection|microphone" />
-
-        <receiver
-            android:name=".BootReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

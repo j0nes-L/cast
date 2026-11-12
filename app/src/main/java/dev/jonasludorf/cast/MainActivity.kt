@@ -2,28 +2,27 @@ package dev.jonasludorf.cast
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
-import android.content.res.ColorStateList
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import dev.jonasludorf.cast.CastSession.State
+import kotlinx.coroutines.launch
 
+/** Opening the app starts casting: the shortest way there. One button stops and starts again. */
 class MainActivity : ComponentActivity() {
 
     companion object {
-        /** Set by [BootReceiver]: enter standby and get out of the way. */
-        const val EXTRA_AUTOSTART = "autostart"
-
-        private const val NOT_SET_UP = "Connect this headset to a PC and run the setup script (setup.ps1)."
+        private const val NOT_SET_UP = "Connect this headset to a PC and set it up on the website's Headsets page."
     }
 
     private lateinit var dot: View
@@ -32,8 +31,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var message: TextView
     private lateinit var buttons: View
     private lateinit var primary: ImageButton
-    private lateinit var quit: ImageButton
-    private var askedForCapture = false
     // A message from the consent or permission flow, shown until the state changes
     private var localMessage: String? = null
 
@@ -41,8 +38,7 @@ class MainActivity : ComponentActivity() {
     private val consent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
         if (result.resultCode == Activity.RESULT_OK && data != null) {
-            CastSession.enterStandby(this, data)
-            if (intent.getBooleanExtra(EXTRA_AUTOSTART, false)) moveTaskToBack(true)
+            CastSession.startCasting(this, data)
         } else {
             localMessage = "Screen capture was not allowed."
             render()
@@ -67,36 +63,25 @@ class MainActivity : ComponentActivity() {
         message = findViewById(R.id.message)
         buttons = findViewById(R.id.buttons)
         primary = findViewById(R.id.primary)
-        quit = findViewById(R.id.quit)
-        quit.background = Brutal.button(this, getColor(R.color.surface))
-        quit.imageTintList = ColorStateList.valueOf(getColor(R.color.ink))
-
         primary.setOnClickListener {
-            when (CastSession.status.value.state) {
-                State.Off -> {
-                    askedForCapture = false
-                    enterStandby()
-                }
-                State.Standby -> CastSession.startCasting()
-                State.Casting -> CastSession.stopCasting()
-                State.Starting -> Unit
-            }
+            if (CastSession.status.value.state == State.Off) startCasting() else CastSession.stopCasting()
         }
-        quit.setOnClickListener {
-            CastSession.quit(this)
-            finish()
-        }
-
         lifecycleScope.launch { CastSession.status.collect { render() } }
-        enterStandby() // opening the app means: be ready
+        if (savedInstanceState == null) startCasting()
+    }
+
+    // Opening the app again (singleTask) while not casting casts right away, too
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        startCasting()
     }
 
     override fun onResume() {
         super.onResume()
-        render() // the setup script may have just written the credentials
+        render() // the setup may have just written the credentials
     }
 
-    // Circle: red off or not set up, yellow standby/starting, green live. Buttons are icons with a description.
+    // Circle: red off or not set up, yellow starting, green live. The button is an icon with a description.
     private fun render() {
         val config = DeviceConfig.load(this)
         buttons.visibility = if (config != null) View.VISIBLE else View.GONE
@@ -105,28 +90,21 @@ class MainActivity : ComponentActivity() {
             return
         }
         val (current, sessionMessage) = CastSession.status.value
-        if (sessionMessage != null || current != State.Off) localMessage = null
+        if (current != State.Off) localMessage = null
         val text = sessionMessage ?: localMessage
         when (current) {
             State.Off -> show(R.color.bad, config.name, "Off", text)
-            State.Standby -> show(R.color.warn, config.name, "Standby · show the start code", text)
             State.Starting -> show(R.color.warn, config.name, "Starting…", text)
             State.Casting -> show(R.color.ok, config.name, "Live", text)
         }
-        val (icon, face, iconColor, description) = when (current) {
-            State.Off -> Quad(R.drawable.ic_cast, R.color.surface, R.color.ink, "Start standby")
-            State.Standby, State.Starting -> Quad(R.drawable.ic_play, R.color.ok, R.color.ink, "Start casting")
-            State.Casting -> Quad(R.drawable.ic_stop, R.color.bad, R.color.surface, "Stop casting")
-        }
-        primary.setImageResource(icon)
-        primary.background = Brutal.button(this, getColor(face))
-        primary.imageTintList = ColorStateList.valueOf(getColor(iconColor))
-        primary.contentDescription = description
+        val casting = current != State.Off
+        primary.setImageResource(if (casting) R.drawable.ic_stop else R.drawable.ic_play)
+        primary.background = Brutal.button(this, getColor(if (casting) R.color.bad else R.color.ok))
+        primary.imageTintList = ColorStateList.valueOf(getColor(if (casting) R.color.surface else R.color.ink))
+        primary.contentDescription = if (casting) "Stop casting" else "Start casting"
         primary.isEnabled = current != State.Starting
         primary.alpha = if (primary.isEnabled) 1f else 0.45f
     }
-
-    private data class Quad(val icon: Int, val face: Int, val iconColor: Int, val description: String)
 
     private fun show(color: Int, title: String, stateText: String?, messageText: String?) {
         dot.background = Brutal.dot(this, getColor(color))
@@ -137,14 +115,13 @@ class MainActivity : ComponentActivity() {
         message.visibility = if (messageText != null) View.VISIBLE else View.GONE
     }
 
-    private fun enterStandby() {
-        if (DeviceConfig.load(this) == null || CastSession.status.value.state != State.Off || askedForCapture) return
-        askedForCapture = true
+    private fun startCasting() {
+        if (DeviceConfig.load(this) == null || CastSession.status.value.state != State.Off) return
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) askForScreenCapture()
         else microphone.launch(arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS))
     }
 
-    // With the setup script's PROJECT_MEDIA app op the system answers this without showing a dialog
+    // With the setup's PROJECT_MEDIA app op the system answers this without showing a dialog
     private fun askForScreenCapture() {
         val manager = getSystemService(MediaProjectionManager::class.java)
         // Always the whole view: the consent dialog then offers no choice of a single app

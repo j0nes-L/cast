@@ -6,13 +6,11 @@
 const en = {
   'title.live': 'Live',
   'title.headsets': 'Headsets',
-  'title.codes': 'Codes',
   'title.privacy': 'Privacy',
 
   'nav.label': 'Navigation',
   'nav.live': 'Live',
   'nav.headsets': 'Headsets',
-  'nav.codes': 'Start and stop codes',
   'nav.privacy': 'Privacy',
   'nav.language': 'Deutsch',
   'nav.signOut': 'Sign out',
@@ -30,7 +28,7 @@ const en = {
   'error.connectionClosed': 'The connection was closed. Please sign in again.',
 
   'live.empty': 'No headset is casting right now.',
-  'live.showCodes': 'Show codes',
+  'live.emptyHint': 'Open Cast on a headset to start.',
   'live.reconnecting': 'Reconnecting…',
   'live.enableAudio': 'Enable audio',
   'live.mute': 'Mute',
@@ -55,10 +53,6 @@ const en = {
   'headsets.removeConfirm': 'Remove {name} from the list? A running cast ends.',
   'headsets.removeFailed': 'Could not remove {name}.',
 
-  'codes.start': 'Start casting',
-  'codes.stop': 'Stop casting',
-  'codes.previous': 'Previous code',
-  'codes.next': 'Next code',
 
   'pair.setUp': 'Set up the connected headset',
   'pair.allow': 'Allow USB access to a headset',
@@ -69,7 +63,7 @@ const en = {
   'pair.cancelled': 'Setup cancelled.',
   'pair.registerFailed': 'The headset could not be registered.',
   'pair.allowDebugging': 'If the headset asks, put it on and allow USB debugging.',
-  'pair.done': '{name} is set up and in standby.',
+  'pair.done': '{name} is set up. Opening Cast on it starts casting.',
   'pair.busyUsb': 'Another program is using the headset. Close it, or run "adb kill-server".',
   'pair.noApp': 'Install Cast on the headset first.',
 
@@ -82,13 +76,11 @@ export type Lang = 'en' | 'de';
 const de: Record<Key, string> = {
   'title.live': 'Live',
   'title.headsets': 'Headsets',
-  'title.codes': 'Codes',
   'title.privacy': 'Datenschutz',
 
   'nav.label': 'Navigation',
   'nav.live': 'Live',
   'nav.headsets': 'Headsets',
-  'nav.codes': 'Start- und Stopp-Codes',
   'nav.privacy': 'Datenschutz',
   'nav.language': 'English',
   'nav.signOut': 'Abmelden',
@@ -106,7 +98,7 @@ const de: Record<Key, string> = {
   'error.connectionClosed': 'Die Verbindung wurde getrennt. Bitte melde dich erneut an.',
 
   'live.empty': 'Gerade castet kein Headset.',
-  'live.showCodes': 'Codes anzeigen',
+  'live.emptyHint': 'Öffne Cast auf einem Headset, um zu starten.',
   'live.reconnecting': 'Verbinde neu…',
   'live.enableAudio': 'Ton aktivieren',
   'live.mute': 'Stummschalten',
@@ -131,10 +123,6 @@ const de: Record<Key, string> = {
   'headsets.removeConfirm': '{name} aus der Liste entfernen? Ein laufender Cast endet.',
   'headsets.removeFailed': '{name} konnte nicht entfernt werden.',
 
-  'codes.start': 'Casting starten',
-  'codes.stop': 'Casting stoppen',
-  'codes.previous': 'Vorheriger Code',
-  'codes.next': 'Nächster Code',
 
   'pair.setUp': 'Angeschlossenes Headset einrichten',
   'pair.allow': 'USB-Zugriff auf ein Headset erlauben',
@@ -145,7 +133,7 @@ const de: Record<Key, string> = {
   'pair.cancelled': 'Einrichtung abgebrochen.',
   'pair.registerFailed': 'Das Headset konnte nicht registriert werden.',
   'pair.allowDebugging': 'Falls das Headset fragt: aufsetzen und USB-Debugging erlauben.',
-  'pair.done': '{name} ist eingerichtet und im Standby.',
+  'pair.done': '{name} ist eingerichtet. Cast darauf öffnen startet das Casting.',
   'pair.busyUsb': 'Ein anderes Programm benutzt das Headset. Schließe es oder führe „adb kill-server“ aus.',
   'pair.noApp': 'Installiere zuerst Cast auf dem Headset.',
 

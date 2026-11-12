@@ -1,5 +1,6 @@
-// Sets up a headset over ADB, as app/setup.ps1 does: registers it with this website, puts its credentials on it,
-// allows capture without the share dialog and starts the app. In the browser the ADB connection runs over WebUSB.
+// Sets up a headset over ADB, as app/setup.ps1 does: registers it with this website, puts its credentials on it and
+// allows capture without the share dialog. It does not start the app: opening it starts casting.
+// In the browser the ADB connection runs over WebUSB.
 import type { Adb } from '@yume-chan/adb';
 
 export const APP_PACKAGE = 'dev.jonasludorf.cast';
@@ -43,8 +44,7 @@ export async function setUpHeadset(
     `pm grant ${APP_PACKAGE} android.permission.RECORD_AUDIO`,
     `pm grant ${APP_PACKAGE} android.permission.POST_NOTIFICATIONS`,
     `appops set ${APP_PACKAGE} PROJECT_MEDIA allow`, // screen capture without the share dialog
-    `am force-stop ${APP_PACKAGE}`,
-    `am start -n ${APP_PACKAGE}/.MainActivity`,
+    `am force-stop ${APP_PACKAGE}`, // a running cast ends; the next start uses the new credentials
   ]) {
     await shell(command);
   }

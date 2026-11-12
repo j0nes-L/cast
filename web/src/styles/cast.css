@@ -638,86 +638,6 @@ html:not([lang='de']) .flag-en {
   display: none;
 }
 
-/* Start and stop codes (/codes): one at a time, as large as the screen allows; native swipe with scroll snap */
-.slides {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-.slides::-webkit-scrollbar {
-  display: none;
-}
-.slide {
-  flex: 0 0 100%;
-  display: grid;
-  place-items: center;
-  padding: 0.25rem 0.5rem 1.5rem; /* room for the card shadow */
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-}
-.slide figure {
-  margin: 0;
-  padding: clamp(0.75rem, 2vw, 1.25rem);
-  max-width: 100%;
-}
-.slide figcaption {
-  display: flex;
-  justify-content: center;
-  padding-top: 0.6rem;
-}
-.slide figcaption svg {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0.35rem;
-  border: var(--line);
-}
-.slide figcaption[data-code='start'] svg {
-  background: var(--ok);
-}
-.slide figcaption[data-code='stop'] svg {
-  background: var(--bad);
-  color: var(--surface);
-}
-/* The SVG has no size of its own: as wide as the window allows (minus frame, side bar and card), as high as the
-   page head, caption and controls leave room for */
-.qr {
-  --qr-gutter: 11rem;
-  width: max(200px, min(calc(100vw - var(--qr-gutter)), calc(100vh - 19rem)));
-  aspect-ratio: 1;
-  line-height: 0;
-  margin: 0 auto;
-}
-.qr svg {
-  width: 100%;
-  height: auto;
-}
-.slide-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-.dots {
-  display: flex;
-  gap: 0.5rem;
-}
-.dot {
-  width: 0.8rem;
-  height: 0.8rem;
-  padding: 0;
-  border: var(--line);
-  background: var(--surface);
-  transition:
-    width 160ms var(--ease-out),
-    background-color 160ms ease;
-}
-.dot[aria-current='true'] {
-  width: 1.8rem;
-  background: var(--ink);
-}
-
 /* Loading circles: page (sign-in pages), video tiles and busy buttons */
 @keyframes spin {
   to {
@@ -825,7 +745,7 @@ html:not([lang='de']) .legal [data-lang='de'] {
   display: none;
 }
 
-/* Short screens, e.g. phones held sideways: compact head, more room for the video and the code */
+/* Short screens, e.g. phones held sideways: compact head, more room for the video */
 @media (max-height: 520px) {
   .page-head {
     padding: 0.5rem 0;
@@ -836,12 +756,6 @@ html:not([lang='de']) .legal [data-lang='de'] {
   }
   .page-head h1 {
     font-size: 1.6rem;
-  }
-  .qr {
-    width: max(150px, min(calc(100vw - var(--qr-gutter)), calc(100vh - 11.5rem)));
-  }
-  .slide {
-    padding-bottom: 0.75rem;
   }
   .site-footer {
     padding: 1rem 0;
@@ -883,9 +797,6 @@ html:not([lang='de']) .legal [data-lang='de'] {
   .sign-in {
     margin-top: 6vh;
     padding: 1.5rem;
-  }
-  .qr {
-    --qr-gutter: 5rem;
   }
   /* Footer links centered, right above the bottom bar */
   .site-footer {
