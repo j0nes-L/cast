@@ -67,4 +67,4 @@ if ($uri.Host -eq "localhost") {
 }
 
 Adb shell am force-stop $package # a running cast ends; the next start uses the new credentials
-Write-Host "Set up as '$($device.name)'. Opening Cast on the headset starts casting."
+Write-Host "Set up as '$($device.name)'. Open Cast on the headset and press the start button to cast."

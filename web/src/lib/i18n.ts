@@ -28,7 +28,7 @@ const en = {
   'error.connectionClosed': 'The connection was closed. Please sign in again.',
 
   'live.empty': 'No headset is casting right now.',
-  'live.emptyHint': 'Open Cast on a headset to start.',
+  'live.emptyHint': 'Open Cast on a headset and press ▶.',
   'live.reconnecting': 'Reconnecting…',
   'live.enableAudio': 'Enable audio',
   'live.mute': 'Mute',
@@ -63,7 +63,7 @@ const en = {
   'pair.cancelled': 'Setup cancelled.',
   'pair.registerFailed': 'The headset could not be registered.',
   'pair.allowDebugging': 'If the headset asks, put it on and allow USB debugging.',
-  'pair.done': '{name} is set up. Opening Cast on it starts casting.',
+  'pair.done': '{name} is set up. Open Cast on it and press ▶ to cast.',
   'pair.busyUsb': 'Another program is using the headset. Close it, or run "adb kill-server".',
   'pair.noApp': 'Install Cast on the headset first.',
 
@@ -98,7 +98,7 @@ const de: Record<Key, string> = {
   'error.connectionClosed': 'Die Verbindung wurde getrennt. Bitte melde dich erneut an.',
 
   'live.empty': 'Gerade castet kein Headset.',
-  'live.emptyHint': 'Öffne Cast auf einem Headset, um zu starten.',
+  'live.emptyHint': 'Öffne Cast auf einem Headset und drücke ▶.',
   'live.reconnecting': 'Verbinde neu…',
   'live.enableAudio': 'Ton aktivieren',
   'live.mute': 'Stummschalten',
@@ -133,7 +133,7 @@ const de: Record<Key, string> = {
   'pair.cancelled': 'Einrichtung abgebrochen.',
   'pair.registerFailed': 'Das Headset konnte nicht registriert werden.',
   'pair.allowDebugging': 'Falls das Headset fragt: aufsetzen und USB-Debugging erlauben.',
-  'pair.done': '{name} ist eingerichtet. Cast darauf öffnen startet das Casting.',
+  'pair.done': '{name} ist eingerichtet. Cast darauf öffnen und ▶ drücken, um zu casten.',
   'pair.busyUsb': 'Ein anderes Programm benutzt das Headset. Schließe es oder führe „adb kill-server“ aus.',
   'pair.noApp': 'Installiere zuerst Cast auf dem Headset.',
 

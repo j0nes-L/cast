@@ -2,7 +2,6 @@ package dev.jonasludorf.cast
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.media.projection.MediaProjectionConfig
@@ -18,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import dev.jonasludorf.cast.CastSession.State
 import kotlinx.coroutines.launch
 
-/** Opening the app starts casting: the shortest way there. One button stops and starts again. */
+/** One button starts and stops casting. */
 class MainActivity : ComponentActivity() {
 
     companion object {
@@ -67,13 +66,6 @@ class MainActivity : ComponentActivity() {
             if (CastSession.status.value.state == State.Off) startCasting() else CastSession.stopCasting()
         }
         lifecycleScope.launch { CastSession.status.collect { render() } }
-        if (savedInstanceState == null) startCasting()
-    }
-
-    // Opening the app again (singleTask) while not casting casts right away, too
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        startCasting()
     }
 
     override fun onResume() {
