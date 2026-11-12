@@ -48,7 +48,7 @@ import { en_, label } from '../lib/i18n';
 
     <script>
       import { DisconnectReason, Room, RoomEvent, Track, type RemoteParticipant } from 'livekit-client';
-      import { busy, setLabel, t, type Key } from '../lib/i18n';
+      import { busy, setLabel, setText, t, Translated, type Key } from '../lib/i18n';
       import { setupSignIn, viewerFetch, type Session } from '../lib/session';
 
       const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -78,8 +78,8 @@ import { en_, label } from '../lib/i18n';
       };
       const LEVEL: Record<string, string> = { excellent: 'ok', good: 'ok', poor: 'warn', lost: 'bad' };
       // Status line in the page head: a colored circle and the message
-      const setStatus = (text: string, level = 'bad') => {
-        statusText.textContent = text;
+      const setStatus = (key: Key | null, vars = {}, level = 'bad') => {
+        setText(statusText, key, vars);
         statusText.dataset.level = level;
       };
       const tiles = new Map<string, Tile>();
@@ -243,13 +243,13 @@ import { en_, label } from '../lib/i18n';
         })
         .on(RoomEvent.ConnectionQualityChanged, (_quality, p) => showQuality(p as RemoteParticipant))
         .on(RoomEvent.AudioPlaybackStatusChanged, render)
-        .on(RoomEvent.Reconnecting, () => setStatus(t('live.reconnecting'), 'warn'))
-        .on(RoomEvent.Reconnected, () => setStatus(''))
+        .on(RoomEvent.Reconnecting, () => setStatus('live.reconnecting', {}, 'warn'))
+        .on(RoomEvent.Reconnected, () => setStatus(null))
         .on(RoomEvent.Disconnected, (reason) => {
           // Our own disconnect: sign-out handles it, and when leaving the page the next page takes over
           if (reason === DisconnectReason.CLIENT_INITIATED) return;
           hideLive();
-          signInUi.showSignIn(t('error.connectionClosed'));
+          signInUi.showSignIn(new Translated('error.connectionClosed'));
         });
 
       function hideLive() {
@@ -265,13 +265,13 @@ import { en_, label } from '../lib/i18n';
         const current = session;
         const res = await busy(button, () => viewerFetch(current, '/api/cast/stop', { deviceId }).catch(() => null));
         if (res?.ok) return;
-        setStatus(res?.status === 401 ? t('error.expired') : t('live.endFailed', { name }));
+        setStatus(res?.status === 401 ? 'error.expired' : 'live.endFailed', { name });
       }
 
       const signInUi = setupSignIn(
         async (newSession) => {
           await room.connect(newSession.url, newSession.token, { autoSubscribe: false }).catch(() => {
-            throw new Error(t('error.streamingUnreachable'));
+            throw new Translated('error.streamingUnreachable');
           });
           session = newSession;
           live.hidden = false;

@@ -1,4 +1,4 @@
-import { busy, t } from './i18n';
+import { busy, setText, showMessage, Translated } from './i18n';
 
 // The viewer's sign-in in the browser, shared by the cast page and /headsets.
 // The token lives in sessionStorage (this tab); "stay signed in" is an httpOnly cookie set by the server.
@@ -35,15 +35,15 @@ async function requestToken(body: object): Promise<Response> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).catch(() => {
-    throw new Error(t('error.unreachable'));
+    throw new Translated('error.unreachable');
   });
 }
 
 /** Exchanges the password for a viewer token. Throws a readable error. */
 export async function signIn(password: string, staySignedIn: boolean): Promise<Session> {
   const res = await requestToken({ password, remember: staySignedIn });
-  if (res.status === 401) throw new Error(t('error.wrongPassword'));
-  if (!res.ok) throw new Error(t('error.signInFailed'));
+  if (res.status === 401) throw new Translated('error.wrongPassword');
+  if (!res.ok) throw new Translated('error.signInFailed');
   return remember(await res.json());
 }
 
@@ -75,13 +75,13 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
   const button = form.querySelector('button')!;
   const signOutButton = document.getElementById('sign-out') as HTMLButtonElement;
   const loading = document.getElementById('page-loading')!;
-  const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
-  const showSignIn = (text = '') => {
+  // [message]: a Translated, another error or nothing
+  const showSignIn = (message?: unknown) => {
     loading.hidden = true;
     form.hidden = false;
     signOutButton.hidden = true;
-    error.textContent = text;
+    showMessage(error, message);
   };
   const start = async (session: Session) => {
     await onSession(session);
@@ -92,13 +92,13 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
 
   form.onsubmit = async (event) => {
     event.preventDefault();
-    error.textContent = '';
+    setText(error, null);
     await busy(button, async () => {
       try {
         await start(await signIn(password.value, staySignedIn.checked));
         password.value = '';
       } catch (err) {
-        error.textContent = message(err);
+        showMessage(error, err);
       }
     });
   };
@@ -109,7 +109,7 @@ export function setupSignIn(onSession: (session: Session) => Promise<void>, onSi
     showSignIn();
   };
 
-  resumeSession().then((session) => (session ? start(session).catch((err) => showSignIn(message(err))) : showSignIn()));
+  resumeSession().then((session) => (session ? start(session).catch(showSignIn) : showSignIn()));
   return { showSignIn };
 }
 

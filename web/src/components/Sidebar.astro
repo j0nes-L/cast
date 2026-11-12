@@ -1,6 +1,6 @@
 ---
 // Floating icon bar: right edge on wide screens, bottom on phones.
-import { Cast, LogOut, RectangleGoggles, ShieldCheck } from '@lucide/astro';
+import { Cast, LogOut, RectangleGoggles } from '@lucide/astro';
 import { en_ } from '../lib/i18n';
 
 interface Props {
@@ -13,7 +13,6 @@ const page = (name: Props['current']) => (current === name ? 'page' : undefined)
 <nav class="rail" aria-label="Navigation">
   <a href="/" aria-current={page('live')}><Cast stroke-width={1.8} /><span class="rail-label" data-t="nav.live">{en_('nav.live')}</span></a>
   <a href="/headsets" aria-current={page('headsets')}><RectangleGoggles stroke-width={1.8} /><span class="rail-label" data-t="nav.headsets">{en_('nav.headsets')}</span></a>
-  <a href="/privacy" aria-current={page('privacy')}><ShieldCheck stroke-width={1.8} /><span class="rail-label" data-t="nav.privacy">{en_('nav.privacy')}</span></a>
   <span class="rail-divider" aria-hidden="true"></span>
   <button id="language" type="button">
     <img class="flag flag-de" src="/flag-de.svg" alt="" width="22" height="22" />

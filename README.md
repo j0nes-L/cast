@@ -27,7 +27,7 @@ The running instance: website `cast.nwdl.org`, streaming server `live.nwdl.org` 
 | `/privacy` | Privacy policy in English and German with the instance's operator and servers (no sign-in; also linked from the Meta Horizon Store) |
 | `/dev/test-publisher` | Development only: a fake headset with a test picture and beeps |
 
-Style: minimal neo-brutalism (paper white, black ink, 2 px borders, hard shadows), Space Grotesk and Lucide icons, all served from the site itself; icons instead of words wherever an icon is clear, circles in green, yellow and red for status. The app uses the same look. Pages are in English and German: the flag in the side bar switches, otherwise the browser language decides. Texts live in `src/lib/i18n.ts`. If the app, the website or the servers start processing other data, update `/privacy` too.
+Style: minimal neo-brutalism (paper white, black ink, 2 px borders, hard shadows), Space Grotesk and Lucide icons, all served from the site itself; icons instead of words wherever an icon is clear, circles in green, yellow and red for status. The app uses the same look. Pages are in English and German: the flag in the side bar switches the texts in place, without a reload; otherwise the browser language decides. Texts live in `src/lib/i18n.ts`; texts set by scripts go through its `setText`, `setLabel`, `setTitle` and `Translated`, so that they switch too. `/privacy` is linked in the footer. If the app, the website or the servers start processing other data, update `/privacy` too.
 
 | API | |
 |---|---|

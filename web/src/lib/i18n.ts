@@ -1,7 +1,8 @@
 // Texts of the website in English and German. The language comes from the switch in the side bar (localStorage
-// "cast.lang"), else from the browser; Layout.astro sets it on <html lang> before the page shows.
+// "cast.lang"), else from the browser; Layout.astro sets it on <html lang> before the page shows and on every switch.
 // Static markup: data-t="key" (text) and data-t-label="key" (aria-label and title), filled in by Layout.astro.
-// Scripts: t("key", { name }).
+// Scripts: setText, setLabel, setTitle and showMessage(new Translated(key)) keep the key, so that switching the
+// language (no reload) translates their texts too; t("key", { name }) for one-off texts such as confirm().
 
 const en = {
   'title.live': 'Live',
@@ -11,7 +12,6 @@ const en = {
   'nav.label': 'Navigation',
   'nav.live': 'Live',
   'nav.headsets': 'Headsets',
-  'nav.privacy': 'Privacy',
   'nav.language': 'Deutsch',
   'nav.signOut': 'Sign out',
   'footer.privacy': 'Privacy',
@@ -81,7 +81,6 @@ const de: Record<Key, string> = {
   'nav.label': 'Navigation',
   'nav.live': 'Live',
   'nav.headsets': 'Headsets',
-  'nav.privacy': 'Datenschutz',
   'nav.language': 'English',
   'nav.signOut': 'Abmelden',
   'footer.privacy': 'Datenschutz',
@@ -148,10 +147,49 @@ export const en_ = (key: Key) => en[key];
 /** Spread onto icon buttons: accessible name and tooltip, translated like data-t. */
 export const label = (key: Key) => ({ 'data-t-label': key, 'aria-label': en[key], title: en[key] });
 
+type Vars = Record<string, string>;
+
 /** In the browser: the text in the current language, with {placeholders} filled in. */
-export function t(key: Key, vars: Record<string, string> = {}): string {
+export function t(key: Key, vars: Vars = {}): string {
   const lang: Lang = document.documentElement.lang === 'de' ? 'de' : 'en';
   return strings[lang][key].replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+}
+
+/** An error or message whose text is one of these, so that it is shown in the current language and switches with it. */
+export class Translated extends Error {
+  constructor(
+    readonly key: Key,
+    readonly vars: Vars = {},
+  ) {
+    super(t(key, vars));
+  }
+}
+
+// Script-set texts keep their key on the element like data-t in the markup, so that the language switch
+// (Layout.astro) translates them again.
+function keep(el: HTMLElement, attr: 't' | 'tLabel' | 'tTitle', key: Key, vars: Vars) {
+  el.dataset[attr] = key;
+  el.dataset.tVars = JSON.stringify(vars);
+}
+
+/** Shows the text of [key] in [el], or nothing for null. */
+export function setText(el: HTMLElement, key: Key | null, vars: Vars = {}) {
+  if (key) keep(el, 't', key, vars);
+  else delete el.dataset.t;
+  el.textContent = key ? t(key, vars) : '';
+}
+
+/** Shows a message in [el]: a Translated one switches with the language, any other error shows as it is. */
+export function showMessage(el: HTMLElement, message: unknown) {
+  if (message instanceof Translated) return setText(el, message.key, message.vars);
+  setText(el, null);
+  if (message) el.textContent = message instanceof Error ? message.message : String(message);
+}
+
+/** Sets the tooltip of [el]. */
+export function setTitle(el: HTMLElement, key: Key, vars: Vars = {}) {
+  keep(el, 'tTitle', key, vars);
+  el.title = t(key, vars);
 }
 
 /** Shows a loading circle on a button (CSS: [aria-busy]) while [work] runs. */
@@ -168,6 +206,7 @@ export async function busy<T>(button: HTMLButtonElement, work: () => Promise<T>)
 
 /** Sets the accessible name and tooltip of an icon button. */
 export function setLabel(el: HTMLElement, key: Key) {
+  keep(el, 'tLabel', key, {});
   el.setAttribute('aria-label', t(key));
   el.title = t(key);
 }

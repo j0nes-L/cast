@@ -51,28 +51,40 @@ const { title, current } = Astro.props;
     </div>
 
     <script is:inline define:vars={{ strings }}>
-      // Runs before the first paint: swaps in the texts of the chosen language, also inside <template>s.
-      const lang = document.documentElement.lang === 'de' ? 'de' : 'en';
-      const dict = strings[lang];
-      const apply = (root) => {
+      // Swaps in the texts of the chosen language: before the first paint, and again on every switch, without a reload.
+      // Every text keeps its key on its element (data-t, data-t-label, data-t-title, with data-t-vars for {placeholders};
+      // the page scripts set them through lib/i18n.ts), also inside <template>s.
+      const html = document.documentElement;
+      const apply = (root, dict) => {
+        const text = (el, key) => {
+          const vars = JSON.parse(el.dataset.tVars || '{}');
+          return dict[key]?.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+        };
         root.querySelectorAll('[data-t]').forEach((el) => {
-          if (dict[el.dataset.t]) el.textContent = dict[el.dataset.t];
+          const s = text(el, el.dataset.t);
+          if (s) el.textContent = s;
         });
         root.querySelectorAll('[data-t-label]').forEach((el) => {
-          const text = dict[el.dataset.tLabel];
-          if (text) {
-            el.setAttribute('aria-label', text);
-            el.title = text;
+          const s = text(el, el.dataset.tLabel);
+          if (s) {
+            el.setAttribute('aria-label', s);
+            el.title = s;
           }
         });
-        root.querySelectorAll('template').forEach((template) => apply(template.content));
+        root.querySelectorAll('[data-t-title]').forEach((el) => {
+          const s = text(el, el.dataset.tTitle);
+          if (s) el.title = s;
+        });
+        root.querySelectorAll('template').forEach((template) => apply(template.content, dict));
       };
-      apply(document);
+      const lang = () => (html.lang === 'de' ? 'de' : 'en');
+      apply(document, strings[lang()]);
       document.getElementById('language').onclick = () => {
+        html.lang = lang() === 'de' ? 'en' : 'de'; // also swaps the flag and the privacy text (CSS)
         try {
-          localStorage.setItem('cast.lang', lang === 'de' ? 'en' : 'de');
+          localStorage.setItem('cast.lang', html.lang);
         } catch {}
-        location.reload(); // simplest way to switch every text, including the ones the page scripts set
+        apply(document, strings[html.lang]);
       };
     </script>
   </body>

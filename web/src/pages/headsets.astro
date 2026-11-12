@@ -38,7 +38,7 @@ import { label } from "../lib/i18n";
     import { Adb, AdbDaemonTransport } from "@yume-chan/adb";
     import AdbWebCredentialStore from "@yume-chan/adb-credential-web";
     import { AdbDaemonWebUsbDevice, AdbDaemonWebUsbDeviceManager } from "@yume-chan/adb-daemon-webusb";
-    import { busy, setLabel, t } from "../lib/i18n";
+    import { busy, setLabel, setText, setTitle, showMessage, t, Translated } from "../lib/i18n";
     import { AppMissingError, setUpHeadset, type Credentials } from "../lib/pair";
     import { setupSignIn, viewerFetch, type Session } from "../lib/session";
 
@@ -60,11 +60,11 @@ import { label } from "../lib/i18n";
       if (!session) return;
       const res = await viewerFetch(session, "/api/devices").catch(() => null);
       if (!res?.ok) {
-        listMessage.textContent = res?.status === 401 ? t("error.expired") : t("headsets.loadFailed");
+        setText(listMessage, res?.status === 401 ? "error.expired" : "headsets.loadFailed");
         return;
       }
       const devices: Device[] = await res.json();
-      listMessage.textContent = devices.length ? "" : t("headsets.empty");
+      setText(listMessage, devices.length ? null : "headsets.empty");
       list.replaceChildren(...devices.map(deviceItem));
     }
 
@@ -84,7 +84,7 @@ import { label } from "../lib/i18n";
       const time = item.querySelector("time")!;
       time.textContent = date;
       time.dateTime = device.createdAt;
-      item.querySelector<HTMLElement>(".date")!.title = t("headsets.setUp", { date });
+      setTitle(item.querySelector<HTMLElement>(".date")!, "headsets.setUp", { date });
       const remove = item.querySelector<HTMLButtonElement>(".remove")!;
       remove.onclick = () => removeDevice(device, remove);
       return item;
@@ -99,11 +99,14 @@ import { label } from "../lib/i18n";
     const META = { filters: [{ vendorId: 0x2833 }] }; // Meta Quest
     let headset: AdbDaemonWebUsbDevice | undefined;
 
-    function showPair(text?: string, level?: string) {
+    // [message]: a Translated or another error; without one, whether a headset is connected
+    function showPair(message?: unknown, level?: string) {
       pairButton.disabled = !headset;
       pairAllow.hidden = !usb || !!headset;
-      pairStatus.textContent =
-        text ?? (!usb ? t("pair.unsupported") : headset ? t("pair.connected", { model: headset.name }) : t("pair.none"));
+      if (message) showMessage(pairStatus, message);
+      else if (!usb) setText(pairStatus, "pair.unsupported");
+      else if (headset) setText(pairStatus, "pair.connected", { model: headset.name });
+      else setText(pairStatus, "pair.none");
       pairStatus.dataset.level = level ?? (headset ? "ok" : "");
     }
     if (usb) {
@@ -121,34 +124,33 @@ import { label } from "../lib/i18n";
 
     async function register(serial: string, model: string): Promise<Credentials> {
       const name = prompt(t("pair.name", { model }));
-      if (!name?.trim()) throw new Error(t("pair.cancelled"));
+      if (!name?.trim()) throw new Translated("pair.cancelled");
       const res = await viewerFetch(session!, "/api/devices", { serial, model, name });
-      if (!res.ok) throw new Error(res.status === 401 ? t("error.expired") : t("pair.registerFailed"));
+      if (!res.ok) throw new Translated(res.status === 401 ? "error.expired" : "pair.registerFailed");
       return res.json();
     }
 
     pairButton.onclick = () =>
       busy(pairButton, async () => {
         if (!headset || !session) return;
-        showPair(t("pair.allowDebugging"), "warn");
+        showPair(new Translated("pair.allowDebugging"), "warn");
         let adb: Adb | undefined;
         try {
           const connection = await headset.connect();
           const credentialStore = new AdbWebCredentialStore("Cast");
           adb = new Adb(await AdbDaemonTransport.authenticate({ serial: headset.serial, connection, credentialStore }));
           const { name } = await setUpHeadset(adb, headset.serial, location.origin, register);
-          showPair(t("pair.done", { name }), "ok");
+          showPair(new Translated("pair.done", { name }), "ok");
           await loadDevices();
         } catch (err) {
-          const text =
+          showPair(
             err instanceof AdbDaemonWebUsbDevice.DeviceBusyError
-              ? t("pair.busyUsb")
+              ? new Translated("pair.busyUsb")
               : err instanceof AppMissingError
-                ? t("pair.noApp")
-                : err instanceof Error
-                  ? err.message
-                  : String(err);
-          showPair(text, "bad");
+                ? new Translated("pair.noApp")
+                : err,
+            "bad",
+          );
         } finally {
           await adb?.close().catch(() => undefined);
         }
@@ -162,8 +164,7 @@ import { label } from "../lib/i18n";
         viewerFetch(current, "/api/devices/remove", { deviceId: device.deviceId }).catch(() => null),
       );
       if (!res?.ok && res?.status !== 404) {
-        listMessage.textContent =
-          res?.status === 401 ? t("error.expired") : t("headsets.removeFailed", { name: device.name });
+        setText(listMessage, res?.status === 401 ? "error.expired" : "headsets.removeFailed", { name: device.name });
         return;
       }
       await loadDevices();
