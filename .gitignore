@@ -10,3 +10,7 @@ CLAUDE.md
 docs/
 .vscode/
 server/bin/
+
+# QA My App catalog and browser agents (local only)
+QA-tests/
+.claude/
