@@ -16,6 +16,7 @@ const en = {
   'nav.signOut': 'Sign out',
   'footer.privacy': 'Privacy',
   'footer.legal': 'Legal notice',
+  'footer.source': 'Source code on GitHub',
 
   'signIn.password': 'Password',
   'signIn.stay': 'Stay signed in',
@@ -85,6 +86,7 @@ const de: Record<Key, string> = {
   'nav.signOut': 'Abmelden',
   'footer.privacy': 'Datenschutz',
   'footer.legal': 'Rechtliches',
+  'footer.source': 'Quellcode auf GitHub',
 
   'signIn.password': 'Passwort',
   'signIn.stay': 'Angemeldet bleiben',
