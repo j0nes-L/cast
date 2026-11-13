@@ -40,7 +40,7 @@ const { title, current } = Astro.props;
         {LEGAL_URL && <a class="icon-link" href={LEGAL_URL} {...label('footer.legal')}><Scale stroke-width={2} /></a>}
         {
           OPERATOR_URL ? (
-            <a class="icon-link" href={OPERATOR_URL} aria-label={OPERATOR_NAME} title={OPERATOR_NAME}>
+            <a class="icon-link" href={OPERATOR_URL} target="_blank" rel="noopener noreferrer" aria-label={OPERATOR_NAME} title={OPERATOR_NAME}>
               <CircleUser stroke-width={2} />
             </a>
           ) : (
