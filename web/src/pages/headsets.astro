@@ -17,6 +17,8 @@ import { label } from "../lib/i18n";
         <button id="pair" type="button" class="icon-button primary" disabled {...label("pair.setUp")}><Usb /></button>
         <span id="pair-status" class="pair-status" role="status"></span>
         <button id="pair-allow" type="button" class="link-button" hidden data-t="pair.allow">USB</button>
+        <!-- The same app for every instance; it has to be on the headset before the setup -->
+        <a class="link-button store" href="https://www.meta.com/s/d8zqQxDFZ" target="_blank" rel="noopener" data-t="pair.store">Cast in the Meta Horizon Store</a>
       </section>
       <section class="card">
         <ul id="device-list"></ul>

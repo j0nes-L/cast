@@ -2,7 +2,7 @@
 
 Android app for Meta Quest 3 / 3S. It casts what the wearer sees, with microphone and app sound, to the website of a Cast instance; the setup script decides which. Other apps need no integration.
 
-The panel has the website's look: the headset's name with a status circle (red off, yellow starting, green live) and one button: ▶ start casting, ■ stop casting. It lifts when pointed at and sinks in when pressed.
+The panel has the website's look: the headset's name with a status circle (red off, yellow starting, green live) and one button: ▶ start casting, ■ stop casting. It lifts when pointed at and sinks in when pressed. At the bottom it shows the instance the headset is set up for, e.g. `cast.nwdl.org`.
 
 ## How it works
 
@@ -12,7 +12,7 @@ The panel has the website's look: the headset's name with a status circle (red o
 
 ## Setup (once per headset)
 
-The headset needs developer mode and a USB connection. Install Cast (store, or `adb install` for development), then set it up in one of two ways.
+The headset needs developer mode and a USB connection. Install Cast ([Meta Horizon Store](https://www.meta.com/s/d8zqQxDFZ), or `adb install` for development), then set it up in one of two ways.
 
 **On the website** (Chrome or Edge, any computer): sign in, open `/headsets`, connect the headset and press the USB button. The first time per headset, "Allow USB access" lets the browser see it, and the headset asks to allow USB debugging (put it on). The browser cannot use the headset while an adb server runs on the same computer: close Android Studio or Unity, or run `adb kill-server`. The website does the same as the script below.
 

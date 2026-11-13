@@ -643,6 +643,9 @@ html:not([lang='de']) .flag-en {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.pair .store {
+  margin-left: auto;
+}
 #list-message:empty {
   display: none;
 }
