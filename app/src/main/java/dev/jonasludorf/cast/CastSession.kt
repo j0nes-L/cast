@@ -1,7 +1,11 @@
 package dev.jonasludorf.cast
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.SystemClock
+import androidx.core.content.ContextCompat
 import io.livekit.android.LiveKit
 import io.livekit.android.RoomOptions
 import io.livekit.android.audio.ScreenAudioCapturer
@@ -21,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,6 +42,8 @@ object CastSession {
 
     private const val FPS = 60
     private const val APP_SOUND_GAIN = 0.5f
+    private const val OFF_LIMIT_MS = 30 * 60_000L
+    private const val OFF_MESSAGE = "Cast ended: the headset was off for 30 minutes."
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _status = MutableStateFlow(Status(State.Off))
@@ -47,6 +54,29 @@ object CastSession {
     private var room: Room? = null
     private var appSound: ScreenAudioCapturer? = null
     private var roomEvents: Job? = null
+    private var offTimer: Job? = null
+    private var offSince = 0L
+
+    // The display goes off when the headset is taken off (and when it sleeps): a cast nobody wears ends after
+    // OFF_LIMIT_MS, if the connection has not dropped before
+    private val display = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val timer = offTimer
+            if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                if (timer != null) return
+                offSince = SystemClock.elapsedRealtime()
+                offTimer = scope.launch {
+                    delay(OFF_LIMIT_MS)
+                    stopCasting(OFF_MESSAGE)
+                }
+            } else if (timer != null) {
+                timer.cancel()
+                offTimer = null
+                // The timer stands still while the headset sleeps; the real time does not
+                if (SystemClock.elapsedRealtime() - offSince >= OFF_LIMIT_MS) stopCasting(OFF_MESSAGE)
+            }
+        }
+    }
 
     private val captureOptions = LocalVideoTrackOptions(isScreencast = true, captureParams = VideoCaptureParameter(1280, 720, FPS))
 
@@ -93,6 +123,8 @@ object CastSession {
                     it.gain = APP_SOUND_GAIN
                     mic?.setAudioBufferCallback(it)
                 }
+                val displayEvents = IntentFilter(Intent.ACTION_SCREEN_OFF).apply { addAction(Intent.ACTION_SCREEN_ON) }
+                ContextCompat.registerReceiver(app, display, displayEvents, ContextCompat.RECEIVER_NOT_EXPORTED)
                 set(State.Casting)
             } catch (e: Exception) {
                 shutDown()
@@ -117,6 +149,9 @@ object CastSession {
     private fun shutDown() {
         roomEvents?.cancel() // our own disconnect below is not an "ended" event
         roomEvents = null
+        runCatching { app.unregisterReceiver(display) } // not registered when the start failed early
+        offTimer?.cancel()
+        offTimer = null
         room?.let {
             (it.localParticipant.getTrackPublication(Track.Source.MICROPHONE)?.track as? LocalAudioTrack)?.setAudioBufferCallback(null)
             it.disconnect() // stops and disposes the published tracks, which ends the screen capture
