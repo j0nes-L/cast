@@ -6,7 +6,7 @@ The panel has the website's look: the headset's name with a status circle (red o
 
 ## How it works
 
-- **▶ starts casting**, nothing else does: opening Cast only shows the panel. For the shortest way, drag Cast's icon from the Library onto the Horizon OS taskbar (it holds only a few pinned apps; unpin one if it is full), or pin it to the top of the Library with its "…" menu. Horizon OS has no quick settings for apps.
+- **▶ starts casting**, nothing else does: opening Cast only shows the panel. For the shortest way, pin Cast in the Navigator: App library, point at Cast, Options, pin (up to 10 pinned apps). Horizon OS has no quick settings for apps.
 - The screen is captured only while casting, so the headset shows "Sharing entire view" only then. ■, "End cast" on the website or the end of the system's capture stop it.
 - Casting goes on while other apps are in front; the panel can be closed.
 
