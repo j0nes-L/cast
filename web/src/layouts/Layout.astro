@@ -2,7 +2,7 @@
 // Shared page frame: font, side bar, footer and the language (see lib/i18n.ts).
 import '@fontsource-variable/space-grotesk';
 import '../styles/cast.css';
-import { CircleUser, Scale, ShieldCheck } from '@lucide/astro';
+import { CircleUser, Scale, ShieldCheck, Store } from '@lucide/astro';
 import { LEGAL_URL, OPERATOR_NAME, OPERATOR_URL } from 'astro:env/server';
 import Sidebar from '../components/Sidebar.astro';
 import { en_, label, strings, type Key } from '../lib/i18n';
@@ -47,6 +47,10 @@ const { title, current } = Astro.props;
             <span class="operator">{OPERATOR_NAME}</span>
           )
         }
+        <!-- The same app for every instance -->
+        <a class="icon-link" href="https://www.meta.com/s/d8zqQxDFZ" target="_blank" rel="noopener noreferrer" {...label('footer.store')}>
+          <Store stroke-width={2} />
+        </a>
         <a class="icon-link" href="https://github.com/j0nes-L/cast" target="_blank" rel="noopener noreferrer" {...label('footer.source')}>
           <!-- GitHub mark (Primer Octicons, MIT); Lucide has no brand icons -->
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943" /></svg>

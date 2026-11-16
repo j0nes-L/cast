@@ -17,6 +17,7 @@ const en = {
   'footer.privacy': 'Privacy',
   'footer.legal': 'Legal notice',
   'footer.source': 'Source code on GitHub',
+  'footer.store': 'Cast in the Meta Horizon Store',
 
   'signIn.password': 'Password',
   'signIn.stay': 'Stay signed in',
@@ -67,7 +68,6 @@ const en = {
   'pair.done': '{name} is set up. Open Cast on it and press ▶ to cast.',
   'pair.busyUsb': 'Another program is using the headset. Close it, or run "adb kill-server".',
   'pair.noApp': 'Install Cast on the headset first.',
-  'pair.store': 'Cast in the Meta Horizon Store',
 
   'common.loading': 'Loading…',
 };
@@ -88,6 +88,7 @@ const de: Record<Key, string> = {
   'footer.privacy': 'Datenschutz',
   'footer.legal': 'Rechtliches',
   'footer.source': 'Quellcode auf GitHub',
+  'footer.store': 'Cast im Meta Horizon Store',
 
   'signIn.password': 'Passwort',
   'signIn.stay': 'Angemeldet bleiben',
@@ -138,7 +139,6 @@ const de: Record<Key, string> = {
   'pair.done': '{name} ist eingerichtet. Cast darauf öffnen und ▶ drücken, um zu casten.',
   'pair.busyUsb': 'Ein anderes Programm benutzt das Headset. Schließe es oder führe „adb kill-server“ aus.',
   'pair.noApp': 'Installiere zuerst Cast auf dem Headset.',
-  'pair.store': 'Cast im Meta Horizon Store',
 
   'common.loading': 'Lädt…',
 };

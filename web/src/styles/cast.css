@@ -643,9 +643,6 @@ html:not([lang='de']) .flag-en {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.pair .store {
-  margin-left: auto;
-}
 #list-message:empty {
   display: none;
 }
@@ -780,7 +777,7 @@ html:not([lang='de']) .legal [data-lang='de'] {
     --rail-space: 1rem;
   }
   .frame {
-    padding: 0 1rem 5.75rem;
+    padding: 0 1rem 4rem; /* the footer links sit right above the bar, about as far from it as the bar from the edge */
   }
   .rail {
     top: auto;
